@@ -6,14 +6,35 @@
  * Fully modular with reusable sub-components
  */
 
+import { useEffect, useState } from 'react';
 import GreetingCard from '../components/GreetingCard';
 import ReminderCard from '../components/ReminderCard';
 import QuickAccessGrid from '../components/QuickAccessGrid';
 import TipCard from '../components/TipCard';
 import BottomNavigation from '../components/BottomNavigation';
+import { getDailyTip } from '../api';
 import '../styles/Home.css';
 
 export default function Home() {
+  const [tip, setTip] = useState('Stay hydrated! Aim for 8-10 glasses of water daily to support your baby\'s development.');
+  const [tipError, setTipError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+    getDailyTip()
+      .then((data) => {
+        if (isMounted && data?.tip) {
+          setTip(data.tip);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) setTipError(err.message || 'Could not load tip');
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Sample data - would come from props or API in production
   const userData = {
     userName: "Sarah Johnson",
@@ -64,7 +85,7 @@ export default function Home() {
         {/* Daily Tip Section */}
         <TipCard 
           title="Today's Tip"
-          content="Stay hydrated! Aim for 8-10 glasses of water daily to support your baby's development."
+          content={tipError ? `Tip unavailable: ${tipError}` : tip}
         />
       </div>
 

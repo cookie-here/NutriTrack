@@ -20,6 +20,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import AuthHeader from '../components/AuthHeader';
 import AuthFooter from '../components/AuthFooter';
 import SubmitButton from '../components/SubmitButton';
+import { login, setAuthToken } from '../api';
 import '../styles/Auth.css';
 
 export default function Login() {
@@ -50,15 +51,13 @@ export default function Login() {
     }
 
     try {
-      console.log('Login attempt:', formData);
-      
-      setTimeout(() => {
-        localStorage.setItem('user', JSON.stringify({ email: formData.email }));
-        navigate('/home');
-        setIsLoading(false);
-      }, 1000);
+      const result = await login({ email: formData.email, password: formData.password });
+      setAuthToken(result.access_token);
+      localStorage.setItem('user', JSON.stringify({ email: formData.email }));
+      navigate('/home');
+      setIsLoading(false);
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError(err.message || 'Login failed. Please try again.');
       setIsLoading(false);
     }
   };

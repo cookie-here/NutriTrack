@@ -24,6 +24,7 @@ import AuthHeader from '../components/AuthHeader';
 import AuthFooter from '../components/AuthFooter';
 import UserTypeSelector from '../components/UserTypeSelector';
 import SubmitButton from '../components/SubmitButton';
+import { register } from '../api';
 import '../styles/Auth.css';
 
 export default function Signup() {
@@ -31,6 +32,7 @@ export default function Signup() {
   const { formData, setFormData, error, isLoading, setError, setIsLoading, handleInputChange } = useForm({
     fullName: '',
     email: '',
+    password: '',
     userType: 'pregnant',
     dueDate: ''
   });
@@ -51,7 +53,7 @@ export default function Signup() {
     setIsLoading(true);
 
     // Validation
-    if (!formData.fullName || !formData.email || !formData.dueDate) {
+    if (!formData.fullName || !formData.email || !formData.password || !formData.dueDate) {
       setError('Please fill in all fields');
       setIsLoading(false);
       return;
@@ -70,18 +72,18 @@ export default function Signup() {
     }
 
     try {
-      console.log('Signup attempt:', formData);
-      
-      setTimeout(() => {
-        localStorage.setItem('user', JSON.stringify({
-          ...formData,
-          id: Date.now()
-        }));
-        navigate('/login', { state: { message: 'Account created! Please sign in.' } });
-        setIsLoading(false);
-      }, 1000);
+      await register({
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        userType: formData.userType,
+        dueDate: formData.dueDate,
+      });
+
+      navigate('/login', { state: { message: 'Account created! Please sign in.' } });
+      setIsLoading(false);
     } catch (err) {
-      setError('Signup failed. Please try again.');
+      setError(err.message || 'Signup failed. Please try again.');
       setIsLoading(false);
     }
   };
@@ -119,6 +121,17 @@ export default function Signup() {
             name="email"
             placeholder="Enter your email"
             value={formData.email}
+            onChange={handleInputChange}
+          />
+
+          {/* Password Input */}
+          <FormInput
+            label="Password"
+            id="password"
+            type="password"
+            name="password"
+            placeholder="Create a password"
+            value={formData.password}
             onChange={handleInputChange}
           />
 
