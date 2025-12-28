@@ -1,0 +1,243 @@
+/* Feeding Page Styling - NutriTrack App */
+/* ===== CSS VARIABLES ===== */
+:root {
+  --feeding-pink: #e91e63;
+  --light-feeding-pink: #fce4ec;
+  --dark-feeding-pink: #ad1457;
+  --text-dark: #333333;
+  --text-gray: #666666;
+  --border-gray: #e0e0e0;
+  --white: #ffffff;
+  --light-gray: #f8f9fa;
+}
+
+/* ===== FEEDING CONTAINER ===== */
+.feeding-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+  padding-bottom: 80px;
+  overflow-y: auto;
+}
+
+/* ===== FEEDING CONTENT ===== */
+.feeding-content {
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ===== FEEDING HEADER ===== */
+.feeding-header {
+  background: linear-gradient(135deg, #e91e63 0%, #ad1457 100%);
+  color: var(--white);
+  padding: 30px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2);
+}
+
+.feeding-header-back {
+  font-size: 28px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.feeding-header-back:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.feeding-header-content h1 {
+  font-size: 24px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.feeding-header-content p {
+  font-size: 13px;
+  margin: 5px 0 0 0;
+  opacity: 0.9;
+}
+
+/* ===== FEEDING MAIN CONTENT ===== */
+.feeding-main {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ===== BABY AGE CARD ===== */
+.baby-age-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.baby-age-emoji {
+  font-size: 48px;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light-feeding-pink);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.baby-age-content h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 4px 0;
+}
+
+.baby-age-content p {
+  font-size: 13px;
+  color: var(--text-gray);
+  margin: 0;
+}
+
+/* ===== FEEDING TABS ===== */
+.feeding-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.feeding-tab-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.feeding-tab-btn.active {
+  background: var(--feeding-pink);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2);
+}
+
+.feeding-tab-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ===== FEEDING GUIDELINE CARD ===== */
+.feeding-guideline-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.feeding-guideline-icon {
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.feeding-guideline-content h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 8px 0;
+}
+
+.feeding-guideline-content p {
+  font-size: 13px;
+  color: var(--text-gray);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ===== FEEDING SCHEDULE CARD ===== */
+.feeding-schedule-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.feeding-schedule-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.feeding-schedule-icon {
+  font-size: 32px;
+}
+
+.feeding-schedule-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.feeding-frequency {
+  font-size: 13px;
+  color: var(--text-gray);
+  background: var(--light-feeding-pink);
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.feeding-instruction {
+  font-size: 13px;
+  color: var(--text-gray);
+  line-height: 1.6;
+  margin: 8px 0;
+  padding-left: 20px;
+  position: relative;
+}
+
+.feeding-instruction::before {
+  content: '◆';
+  position: absolute;
+  left: 8px;
+  color: var(--feeding-pink);
+  font-size: 10px;
+}
+
+/* ===== FEEDING SECTION TITLE ===== */
+.feeding-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 10px 0 16px 0;
+}

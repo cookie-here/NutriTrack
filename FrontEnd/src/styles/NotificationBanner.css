@@ -1,0 +1,148 @@
+/* Notification Permission Banner Styling */
+/* ======================================= */
+
+.notification-banner {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+  padding: 16px;
+  margin: 0 0 16px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  animation: slideDown 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.notification-banner-icon {
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  animation: bounce 0.6s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.notification-banner-text {
+  flex: 1;
+}
+
+.notification-banner-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.notification-banner-message {
+  font-size: 12px;
+  margin: 0;
+  opacity: 0.95;
+}
+
+.notification-banner-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.notification-banner-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.notification-banner-btn.enable {
+  background: rgba(255, 255, 255, 0.95);
+  color: #2196f3;
+}
+
+.notification-banner-btn.enable:hover {
+  background: white;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.notification-banner-btn.dismiss {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.notification-banner-btn.dismiss:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.notification-banner-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-banner-close:hover {
+  opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .notification-banner {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .notification-banner-content {
+    width: 100%;
+  }
+
+  .notification-banner-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .notification-banner-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}

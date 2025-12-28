@@ -1,0 +1,180 @@
+/* Notification Card Styling */
+
+/* ===== NOTIFICATION CONTAINER ===== */
+.notification-container {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  border-left: 5px solid #ff9800;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+  margin-bottom: 20px;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== NOTIFICATION HEADER ===== */
+.notification-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 152, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.notification-icon {
+  font-size: 24px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.notification-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+.notification-close {
+  background: rgba(255, 152, 0, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ff9800;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.notification-close:hover {
+  background: rgba(255, 152, 0, 0.3);
+  transform: scale(1.1);
+}
+
+/* ===== NOTIFICATION CONTENT ===== */
+.notification-content {
+  padding: 16px;
+}
+
+.notification-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notification-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.notification-vaccine-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  flex: 1;
+}
+
+.notification-days-badge {
+  background: #ff9800;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.notification-item-details {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: #555;
+  margin-left: 0;
+}
+
+.notification-detail {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.notification-divider {
+  height: 1px;
+  background: rgba(255, 152, 0, 0.2);
+  margin: 12px 0;
+}
+
+/* ===== NOTIFICATION FOOTER ===== */
+.notification-footer {
+  padding: 12px 16px;
+  background: rgba(255, 152, 0, 0.05);
+  border-top: 1px solid rgba(255, 152, 0, 0.1);
+}
+
+.notification-message {
+  margin: 0;
+  font-size: 12px;
+  color: #d97706;
+  font-weight: 600;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 600px) {
+  .notification-container {
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+
+  .notification-header {
+    padding: 12px;
+  }
+
+  .notification-icon {
+    font-size: 20px;
+  }
+
+  .notification-title {
+    font-size: 14px;
+  }
+
+  .notification-content {
+    padding: 12px;
+  }
+
+  .notification-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .notification-days-badge {
+    align-self: flex-start;
+  }
+
+  .notification-item-details {
+    flex-wrap: wrap;
+  }
+}

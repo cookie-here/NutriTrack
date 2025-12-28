@@ -27,6 +27,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Home from './pages/Home'
+import Nutrition from './pages/Nutrition'
+import Vaccines from './pages/Vaccines'
+import Feeding from './pages/Feeding'
+import Growth from './pages/Growth'
 import './App.css'
 
 /**
@@ -51,8 +55,24 @@ function App() {
         {/* Route 3: Signup Page */}
         {/* Path: /signup → Shows <Signup /> component */}
         <Route path="/signup" element={<Signup />} />
+
+        {/* Route 4: Nutrition Page */}
+        {/* Path: /nutrition → Shows <Nutrition /> component */}
+        <Route path="/nutrition" element={<Nutrition />} />
+
+        {/* Route 5: Vaccines Page */}
+        {/* Path: /vaccines → Shows <Vaccines /> component */}
+        <Route path="/vaccines" element={<Vaccines />} />
+
+        {/* Route 6: Feeding Page */}
+        {/* Path: /feeding → Shows <Feeding /> component */}
+        <Route path="/feeding" element={<Feeding />} />
+
+        {/* Route 7: Growth Page */}
+        {/* Path: /growth → Shows <Growth /> component */}
+        <Route path="/growth" element={<Growth />} />
         
-        {/* Route 4: Root Path Redirect */}
+        {/* Route 8: Root Path Redirect */}
         {/* Path: / (any other path) → Redirect to /login */}
         {/* replace: replaces history entry so user can't go back to "/" */}
         <Route path="/" element={<Navigate to="/login" replace />} />
