@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from pydantic import ValidationError
 
 from database import get_db
 from models import User
@@ -35,6 +36,19 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         
         return {"msg": "User created"}
         
+    except ValidationError as e:
+        # Handle Pydantic validation errors (including password validation)
+        db.rollback()
+        errors = e.errors()
+        error_messages = []
+        for error in errors:
+            if error['loc'][0] == 'password':
+                error_messages.append(error['msg'])
+        
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_messages[0] if error_messages else "Password validation failed"
+        )
     except HTTPException:
         # Re-raise HTTPExceptions
         db.rollback()

@@ -13,6 +13,7 @@
  * - UserTypeSelector: Reusable user type selector
  * - DateInput: Custom date input with calendar picker
  * - SubmitButton: Reusable submit button component
+ * - PasswordStrengthIndicator: Real-time password strength feedback
  */
 
 import { useNavigate } from 'react-router-dom';
@@ -24,6 +25,7 @@ import AuthHeader from '../components/AuthHeader';
 import AuthFooter from '../components/AuthFooter';
 import UserTypeSelector from '../components/UserTypeSelector';
 import SubmitButton from '../components/SubmitButton';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 import { register } from '../api';
 import '../styles/Auth.css';
 
@@ -44,6 +46,19 @@ export default function Signup() {
       ...prev,
       userType: type
     }));
+  };
+
+  // ===== PASSWORD VALIDATION HELPER =====
+  const validatePassword = (password) => {
+    const requirements = {
+      minLength: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    };
+
+    return Object.values(requirements).every(Boolean);
   };
 
   // ===== FORM SUBMISSION HANDLER =====
@@ -67,6 +82,12 @@ export default function Signup() {
 
     if (formData.fullName.length < 2) {
       setError('Full name must be at least 2 characters');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!validatePassword(formData.password)) {
+      setError('Password does not meet security requirements. Please check the requirements below.');
       setIsLoading(false);
       return;
     }
@@ -134,6 +155,9 @@ export default function Signup() {
             value={formData.password}
             onChange={handleInputChange}
           />
+
+          {/* Password Strength Indicator */}
+          <PasswordStrengthIndicator password={formData.password} />
 
           {/* User Type Selector */}
           <UserTypeSelector 
