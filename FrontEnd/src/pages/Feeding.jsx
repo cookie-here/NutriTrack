@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 import FeedingHeader from '../components/FeedingHeader';
 import BottomNavigation from '../components/BottomNavigation';
 import { getFeedingGuide } from '../api';
@@ -15,6 +16,7 @@ import '../styles/Feeding.css';
 
 export default function Feeding() {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('schedule');
   const [feedingGuide, setFeedingGuide] = useState({});
   const [loading, setLoading] = useState(true);
@@ -77,7 +79,7 @@ export default function Feeding() {
   };
 
   return (
-    <div className="feeding-container">
+    <div className={`feeding-container ${darkMode ? 'dark-mode' : ''}`}>
       {/* Feeding Header */}
       <FeedingHeader onBack={() => navigate('/home')} />
 

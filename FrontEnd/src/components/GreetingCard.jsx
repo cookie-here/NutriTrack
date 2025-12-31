@@ -5,14 +5,18 @@
  * Shows current trimester/month and due date
  */
 
+import { useNavigate } from 'react-router-dom';
+
 export default function GreetingCard({ userName = "Sarah Johnson", trimester = "Trimester 2", dueDate = "2025-06-15" }) {
+  const navigate = useNavigate();
+
   return (
     <div className="greeting-card">
       <div className="greeting-header">
         <div className="greeting-text">
           <h1>Hello, <br /> <strong>{userName}</strong></h1>
         </div>
-        <div className="profile-avatar">
+        <div className="profile-avatar" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
           <span>👤</span>
         </div>
       </div>

@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 import NutritionHeader from '../components/NutritionHeader';
 import NutritionCard from '../components/NutritionCard';
 import BottomNavigation from '../components/BottomNavigation';
@@ -16,6 +17,7 @@ import '../styles/Nutrition.css';
 
 export default function Nutrition() {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('recommended');
   const [nutritionTips, setNutritionTips] = useState([]);
   const [safeFoods, setSafeFoods] = useState({ safe: [], unsafe: [] });
@@ -128,7 +130,7 @@ export default function Nutrition() {
   ];
 
   return (
-    <div className="nutrition-container">
+    <div className={`nutrition-container ${darkMode ? 'dark-mode' : ''}`}>
       {/* Nutrition Header */}
       <NutritionHeader onBack={() => navigate('/home')} />
 

@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 import VaccinesHeader from '../components/VaccinesHeader';
 import VaccineCard from '../components/VaccineCard';
 import BottomNavigation from '../components/BottomNavigation';
@@ -17,6 +18,7 @@ import '../styles/Vaccines.css';
 
 export default function Vaccines() {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('all');
   const [vaccineSchedule, setVaccineSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -148,7 +150,7 @@ export default function Vaccines() {
   };
 
   return (
-    <div className="vaccines-container">
+    <div className={`vaccines-container ${darkMode ? 'dark-mode' : ''}`}>
       {/* Vaccines Header */}
       <VaccinesHeader onBack={() => navigate('/home')} />
 

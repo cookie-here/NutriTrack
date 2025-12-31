@@ -222,3 +222,95 @@
   flex-direction: column;
   gap: 12px;
 }
+
+/* ===== DARK MODE STYLES ===== */
+.nutrition-container.dark-mode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.nutrition-container.dark-mode .nutrition-main {
+  background-color: transparent;
+}
+
+/* Nutrition Item Cards Dark Mode */
+.nutrition-container.dark-mode .nutrition-item-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.nutrition-container.dark-mode .nutrition-item-card:hover {
+  background: #252538;
+}
+
+.nutrition-container.dark-mode .nutrition-item-content h4 {
+  color: #ffffff;
+}
+
+.nutrition-container.dark-mode .nutrition-item-content p {
+  color: #b0b0b0;
+}
+
+.nutrition-container.dark-mode .nutrition-item-emoji {
+  background: rgba(0, 200, 83, 0.2);
+}
+
+.nutrition-container.dark-mode .nutrition-item-arrow {
+  color: #888888;
+}
+
+/* Nutrition Tip Card Dark Mode */
+.nutrition-container.dark-mode .nutrition-tip-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.nutrition-container.dark-mode .nutrition-tip-content h3 {
+  color: #ffffff;
+}
+
+.nutrition-container.dark-mode .nutrition-tip-content p {
+  color: #b0b0b0;
+}
+
+/* Section Titles Dark Mode */
+.nutrition-container.dark-mode .nutrition-section-title {
+  color: #ffffff;
+}
+
+/* Summary Cards Dark Mode */
+.nutrition-container.dark-mode .nutrition-summary-card,
+.nutrition-container.dark-mode .nutrition-category-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.nutrition-container.dark-mode .summary-title,
+.nutrition-container.dark-mode .summary-value,
+.nutrition-container.dark-mode .category-title {
+  color: #ffffff;
+}
+
+.nutrition-container.dark-mode .summary-label {
+  color: #b0b0b0;
+}
+
+.nutrition-container.dark-mode .progress-bar {
+  background: #333;
+}
+
+/* Tab Buttons Dark Mode */
+.nutrition-container.dark-mode .nutrition-tab-btn {
+  background: #2a2a3e;
+  color: #b0b0b0;
+}
+
+.nutrition-container.dark-mode .nutrition-tab-btn.active {
+  background: var(--nutrition-green);
+  color: #ffffff;
+}
+
+/* Foods to Avoid - Category Badge Dark Mode */
+.nutrition-container.dark-mode .nutrition-item-category {
+  background: rgba(0, 200, 83, 0.3);
+  color: #4caf50;
+}

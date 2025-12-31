@@ -12,10 +12,12 @@ import GrowthHeader from '../components/GrowthHeader';
 import MilestoneCard from '../components/MilestoneCard';
 import BottomNavigation from '../components/BottomNavigation';
 import { getGrowthRecords, createGrowthRecord, deleteGrowthRecord } from '../api';
+import { useTheme } from '../context/ThemeContext';
 import '../styles/Growth.css';
 
 export default function Growth() {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('weight');
   const [growthRecords, setGrowthRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -124,7 +126,7 @@ export default function Growth() {
   }));
 
   return (
-    <div className="growth-container">
+    <div className={`growth-container ${darkMode ? 'dark-mode' : ''}`}>
       {/* Growth Header */}
       <GrowthHeader 
         onBack={() => navigate('/home')}

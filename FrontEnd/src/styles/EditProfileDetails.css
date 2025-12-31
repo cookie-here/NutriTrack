@@ -1,0 +1,425 @@
+/* Edit Profile Details Page Styling - NutriTrack App */
+
+/* ===== CONTAINER ===== */
+.edit-profile-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff5f9 0%, #f0e6f0 100%);
+  overflow-y: auto;
+}
+
+/* ===== CONTENT ===== */
+.edit-profile-content {
+  flex: 1;
+  padding: 20px;
+  padding-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ===== HEADER ===== */
+.edit-profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.edit-profile-header .back-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 300;
+  color: #ff1493;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.edit-profile-header .back-button:hover {
+  background: #fff5f9;
+  transform: scale(1.05);
+}
+
+.edit-profile-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333333;
+  margin: 0;
+}
+
+.save-button {
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff1493 0%, #8b3a8b 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 20, 147, 0.3);
+}
+
+/* ===== SECTION CARD ===== */
+.section-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.section-heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333333;
+  margin: 0 0 5px 0;
+  text-align: left;
+}
+
+.section-description {
+  font-size: 14px;
+  color: #666666;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* ===== FORM STYLES ===== */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  background: #fafafa;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #ff1493;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 20, 147, 0.1);
+}
+
+.form-input::placeholder {
+  color: #b0b0b0;
+}
+
+/* ===== TRIMESTER SELECTOR ===== */
+.trimester-selector {
+  margin-bottom: 20px;
+}
+
+.trimester-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.trimester-button {
+  flex: 1;
+  padding: 15px 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.trimester-button:hover {
+  border-color: #ff1493;
+  background: #fff5f9;
+}
+
+.trimester-button.active {
+  border-color: #ff1493;
+  background: linear-gradient(135deg, #ff1493 0%, #8b3a8b 100%);
+  color: #ffffff;
+}
+
+.trimester-number {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.trimester-label {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* ===== WEEK SELECTOR ===== */
+.week-selector {
+  margin-bottom: 20px;
+}
+
+.week-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.week-adjust-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #e0e0e0;
+  background: #ffffff;
+  font-size: 24px;
+  font-weight: 300;
+  color: #ff1493;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.week-adjust-button:hover:not(:disabled) {
+  border-color: #ff1493;
+  background: #fff5f9;
+}
+
+.week-adjust-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.week-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.week-number {
+  font-size: 36px;
+  font-weight: 700;
+  color: #ff1493;
+}
+
+.week-label {
+  font-size: 14px;
+  color: #666666;
+}
+
+.week-range-info {
+  text-align: center;
+  font-size: 13px;
+  color: #999999;
+  margin: 10px 0 0 0;
+}
+
+/* ===== PREGNANCY PROGRESS ===== */
+.pregnancy-progress {
+  background: linear-gradient(135deg, #fff5f9 0%, #f0e6f0 100%);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+}
+
+.progress-bar-container {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #ff1493 0%, #8b3a8b 100%);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.progress-info {
+  text-align: center;
+  font-size: 13px;
+  color: #666666;
+  margin: 10px 0 0 0;
+}
+
+/* ===== FOOD INTOLERANCES ===== */
+.intolerance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.intolerance-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.intolerance-chip:hover {
+  border-color: #ff1493;
+  background: #fff5f9;
+}
+
+.intolerance-chip.active {
+  border-color: #ff1493;
+  background: linear-gradient(135deg, rgba(255, 20, 147, 0.1) 0%, rgba(139, 58, 139, 0.1) 100%);
+}
+
+.chip-emoji {
+  font-size: 18px;
+}
+
+.chip-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333333;
+}
+
+.chip-check {
+  font-size: 14px;
+  color: #ff1493;
+  font-weight: 700;
+}
+
+/* ===== SELECTED INTOLERANCES ===== */
+.selected-intolerances {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.selected-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #666666;
+  margin: 0 0 10px 0;
+  text-align: left;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #ff1493 0%, #8b3a8b 100%);
+  color: #ffffff;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ===== MOBILE SAVE BUTTON ===== */
+.save-button-mobile {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ff1493 0%, #8b3a8b 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+}
+
+.save-button-mobile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 20, 147, 0.3);
+}
+
+.save-button-mobile:active {
+  transform: translateY(0);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 380px) {
+  .edit-profile-content {
+    padding: 15px;
+  }
+  
+  .section-card {
+    padding: 16px;
+  }
+  
+  .trimester-button {
+    padding: 12px 8px;
+  }
+  
+  .trimester-number {
+    font-size: 20px;
+  }
+  
+  .intolerance-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .week-number {
+    font-size: 28px;
+  }
+}
+
+@media (min-width: 500px) {
+  .intolerance-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

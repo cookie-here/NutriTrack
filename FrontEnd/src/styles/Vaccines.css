@@ -337,3 +337,95 @@
   flex-direction: column;
   gap: 12px;
 }
+
+
+/* ===== DARK MODE STYLES ===== */
+.vaccines-container.dark-mode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.vaccines-container.dark-mode .vaccines-main {
+  background-color: transparent;
+}
+
+/* Top Three Stat Boxes Dark Mode */
+.vaccines-container.dark-mode .vaccine-stat-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.vaccines-container.dark-mode .vaccine-stat-number {
+  color: #64b5f6;
+}
+
+.vaccines-container.dark-mode .vaccine-stat-label {
+  color: #ffffff;
+}
+
+.vaccines-container.dark-mode .vaccine-stat-icon {
+  color: #ffffff;
+}
+
+/* Summary Cards Dark Mode */
+.vaccines-container.dark-mode .vaccine-summary-card,
+.vaccines-container.dark-mode .summary-stat-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.vaccines-container.dark-mode .summary-stat-label,
+.vaccines-container.dark-mode .summary-stat-value,
+.vaccines-container.dark-mode .summary-stat-icon {
+  color: #ffffff;
+}
+
+/* Filter/Tab Buttons Dark Mode */
+.vaccines-container.dark-mode .filter-button,
+.vaccines-container.dark-mode .vaccine-tab-btn {
+  background: #2a2a3e;
+  color: #b0b0b0;
+  border-color: #444;
+}
+
+.vaccines-container.dark-mode .filter-button.active,
+.vaccines-container.dark-mode .vaccine-tab-btn.active {
+  background: var(--vaccine-blue);
+  color: #ffffff;
+}
+
+/* Vaccine Cards Dark Mode */
+.vaccines-container.dark-mode .vaccine-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.vaccines-container.dark-mode .vaccine-card:hover {
+  background: #252538;
+}
+
+.vaccines-container.dark-mode .vaccine-card-title {
+  color: #ffffff;
+}
+
+.vaccines-container.dark-mode .vaccine-card-details {
+  border-top-color: #444;
+}
+
+.vaccines-container.dark-mode .vaccine-detail-label {
+  color: #ffffff;
+}
+
+.vaccines-container.dark-mode .vaccine-detail-value,
+.vaccines-container.dark-mode .vaccine-card-details {
+  color: #b0b0b0;
+}
+
+.vaccines-container.dark-mode .vaccine-detail-badge {
+  background: rgba(33, 150, 243, 0.2);
+  color: #64b5f6;
+}
+
+.vaccines-container.dark-mode .vaccine-section-title {
+  color: #ffffff;
+}
+

@@ -80,6 +80,12 @@
   justify-content: center;
   font-size: 24px;
   flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.profile-avatar:hover {
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
 }
 
 .trimester-info {
@@ -422,4 +428,56 @@
     max-width: 500px;
     margin: 0 auto;
   }
+}
+
+/* ===== DARK MODE STYLES ===== */
+.home-container.dark-mode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.home-container.dark-mode .reminder-card,
+.home-container.dark-mode .tip-card {
+  background: #252538;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.home-container.dark-mode .reminder-card h2,
+.home-container.dark-mode .tip-card h2,
+.home-container.dark-mode .section-header h2 {
+  color: #ffffff;
+}
+
+.home-container.dark-mode .reminder-item {
+  background: #2a2a3d;
+  border-color: #444455;
+}
+
+.home-container.dark-mode .reminder-title {
+  color: #ffffff;
+}
+
+.home-container.dark-mode .reminder-time,
+.home-container.dark-mode .tip-content {
+  color: #b0b0b0;
+}
+
+.home-container.dark-mode .tip-card {
+  background: #252538;
+}
+
+.home-container.dark-mode .tip-content {
+  color: #b0b0b0;
+}
+
+.home-container.dark-mode .bottom-nav {
+  background: #1e1e2f;
+  border-top-color: #333344;
+}
+
+.home-container.dark-mode .nav-item {
+  color: #888888;
+}
+
+.home-container.dark-mode .nav-item.active {
+  color: #ff1493;
 }

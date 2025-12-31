@@ -337,3 +337,99 @@
   flex-direction: column;
   gap: 12px;
 }
+
+/* ===== DARK MODE STYLES ===== */
+.growth-container.dark-mode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.growth-container.dark-mode .growth-main {
+  background-color: transparent;
+}
+
+/* Current Stats Card Dark Mode */
+.growth-container.dark-mode .current-stats-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.growth-container.dark-mode .stat-label,
+.growth-container.dark-mode .stat-value {
+  color: #ffffff;
+}
+
+.growth-container.dark-mode .stat-change {
+  color: #b0b0b0;
+}
+
+/* Growth Chart Card Dark Mode */
+.growth-container.dark-mode .growth-chart-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.growth-container.dark-mode .chart-title {
+  color: #ffffff;
+}
+
+.growth-container.dark-mode .chart-bar {
+  background: rgba(156, 39, 176, 0.3);
+}
+
+.growth-container.dark-mode .growth-legend-item {
+  color: #b0b0b0;
+}
+
+/* Milestone Card Dark Mode */
+.growth-container.dark-mode .milestone-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.growth-container.dark-mode .milestone-card:hover {
+  background: #252538;
+}
+
+.growth-container.dark-mode .milestone-card.completed {
+  background: rgba(39, 174, 96, 0.1);
+}
+
+.growth-container.dark-mode .milestone-content h4 {
+  color: #ffffff;
+}
+
+.growth-container.dark-mode .milestone-content p,
+.growth-container.dark-mode .milestone-age {
+  color: #b0b0b0;
+}
+
+.growth-container.dark-mode .milestone-emoji {
+  background: rgba(156, 39, 176, 0.2);
+}
+
+/* Milestones Card Container Dark Mode */
+.growth-container.dark-mode .milestones-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+/* Tab Buttons Dark Mode */
+.growth-container.dark-mode .tab-button {
+  background: #2a2a3e;
+  color: #b0b0b0;
+}
+
+.growth-container.dark-mode .tab-button.active {
+  background: var(--growth-purple);
+  color: #ffffff;
+}
+
+/* Section Titles Dark Mode */
+.growth-container.dark-mode .growth-section-title,
+.growth-container.dark-mode .milestone-title {
+  color: #ffffff;
+}
+
+.growth-container.dark-mode .milestone-date {
+  color: #b0b0b0;
+}

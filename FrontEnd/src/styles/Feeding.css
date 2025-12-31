@@ -241,3 +241,108 @@
   color: var(--text-dark);
   margin: 10px 0 16px 0;
 }
+
+/* ===== DARK MODE STYLES ===== */
+.feeding-container.dark-mode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.feeding-container.dark-mode .feeding-main {
+  background-color: transparent;
+}
+
+/* Baby Age Card Dark Mode */
+.feeding-container.dark-mode .baby-age-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.feeding-container.dark-mode .baby-age-content h3 {
+  color: #ffffff;
+}
+
+.feeding-container.dark-mode .baby-age-content p {
+  color: #b0b0b0;
+}
+
+.feeding-container.dark-mode .age-icon {
+  background: rgba(233, 30, 99, 0.2);
+}
+
+/* Feeding Tabs Dark Mode */
+.feeding-container.dark-mode .feeding-tab-btn {
+  background: #2a2a3e;
+  color: #b0b0b0;
+}
+
+.feeding-container.dark-mode .feeding-tab-btn.active {
+  background: var(--feeding-pink);
+  color: #ffffff;
+}
+
+/* Feeding Guideline Card Dark Mode */
+.feeding-container.dark-mode .feeding-guideline-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.feeding-container.dark-mode .feeding-guideline-card:hover {
+  background: #252538;
+}
+
+.feeding-container.dark-mode .feeding-guideline-content h3 {
+  color: #ffffff;
+}
+
+.feeding-container.dark-mode .feeding-guideline-content p {
+  color: #b0b0b0;
+}
+
+/* Feeding Detail Card Dark Mode */
+.feeding-container.dark-mode .feeding-detail-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.feeding-container.dark-mode .detail-title {
+  color: #ffffff;
+}
+
+.feeding-container.dark-mode .detail-list-item {
+  color: #b0b0b0;
+}
+
+/* Section Titles Dark Mode */
+.feeding-container.dark-mode .feeding-section-title {
+  color: #ffffff;
+}
+
+/* Feeding Tip Card Dark Mode */
+.feeding-container.dark-mode .feeding-tip-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.feeding-container.dark-mode .feeding-tip-content h3 {
+  color: #ffffff;
+}
+
+.feeding-container.dark-mode .feeding-tip-content p {
+  color: #b0b0b0;
+}
+
+/* Feeding Schedule Card Dark Mode */
+.feeding-container.dark-mode .feeding-schedule-card {
+  background: #1e1e2f;
+  border-color: #333;
+}
+
+.feeding-container.dark-mode .feeding-schedule-card h3,
+.feeding-container.dark-mode .feeding-schedule-card h4 {
+  color: #ffffff;
+}
+
+.feeding-container.dark-mode .feeding-schedule-card p,
+.feeding-container.dark-mode .feeding-schedule-card span {
+  color: #b0b0b0;
+}

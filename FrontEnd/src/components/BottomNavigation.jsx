@@ -7,9 +7,11 @@
  */
 
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 export default function BottomNavigation({ activeTab = "Home" }) {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
 
   const tabs = [
     { id: 1, label: "Home", icon: "🏠", path: "/home" },
@@ -20,7 +22,7 @@ export default function BottomNavigation({ activeTab = "Home" }) {
   ];
 
   return (
-    <nav className="bottom-navigation">
+    <nav className={`bottom-navigation ${darkMode ? 'dark-mode' : ''}`}>
       {tabs.map((tab) => (
         <div 
           key={tab.id} 

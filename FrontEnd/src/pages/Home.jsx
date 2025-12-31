@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useTheme } from '../context/ThemeContext';
 import GreetingCard from '../components/GreetingCard';
 import ReminderCard from '../components/ReminderCard';
 import NotificationCard from '../components/NotificationCard';
@@ -19,6 +20,8 @@ import '../styles/Home.css';
 import '../styles/NotificationCard.css';
 
 export default function Home() {
+  const { darkMode } = useTheme();
+  
   // State for notification permission
   const [notificationPermission, setNotificationPermission] = useState(false);
   const [tip, setTip] = useState("Stay hydrated! Drink at least 8 glasses of water daily.");
@@ -156,7 +159,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="home-container">
+    <div className={`home-container ${darkMode ? 'dark-mode' : ''}`}>
       {/* Main Content */}
       <div className="home-content">
         

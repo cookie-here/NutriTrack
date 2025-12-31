@@ -24,6 +24,7 @@
  */
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { ThemeProvider } from './context/ThemeContext'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Home from './pages/Home'
@@ -31,6 +32,8 @@ import Nutrition from './pages/Nutrition'
 import Vaccines from './pages/Vaccines'
 import Feeding from './pages/Feeding'
 import Growth from './pages/Growth'
+import Profile from './pages/Profile'
+import EditProfileDetails from './pages/EditProfileDetails'
 import './App.css'
 
 /**
@@ -40,12 +43,14 @@ import './App.css'
  */
 function App() {
   return (
-    // Router: Enables all React Router functionality
-    <Router>
-      {/* Routes: Container for all route definitions */}
-      <Routes>
-        {/* Route 1: Home Page (Dashboard) */}
-        {/* Path: /home → Shows <Home /> component */}
+    // ThemeProvider: Provides dark mode state to entire app
+    <ThemeProvider>
+      {/* Router: Enables all React Router functionality */}
+      <Router>
+        {/* Routes: Container for all route definitions */}
+        <Routes>
+          {/* Route 1: Home Page (Dashboard) */}
+          {/* Path: /home → Shows <Home /> component */}
         <Route path="/home" element={<Home />} />
         
         {/* Route 2: Login Page */}
@@ -71,13 +76,22 @@ function App() {
         {/* Route 7: Growth Page */}
         {/* Path: /growth → Shows <Growth /> component */}
         <Route path="/growth" element={<Growth />} />
+
+        {/* Route 8: Profile Page */}
+        {/* Path: /profile → Shows <Profile /> component */}
+        <Route path="/profile" element={<Profile />} />
+
+        {/* Route 9: Edit Profile Details Page */}
+        {/* Path: /edit-profile-details → Shows <EditProfileDetails /> component */}
+        <Route path="/edit-profile-details" element={<EditProfileDetails />} />
         
-        {/* Route 8: Root Path Redirect */}
+        {/* Route 10: Root Path Redirect */}
         {/* Path: / (any other path) → Redirect to /login */}
         {/* replace: replaces history entry so user can't go back to "/" */}
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
+    </ThemeProvider>
   )
 }
 

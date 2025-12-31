@@ -66,3 +66,64 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* ===== GLOBAL DARK MODE STYLES ===== */
+/* Light Mode (default) CSS Variables */
+:root,
+[data-theme="light"] {
+  --bg-primary: linear-gradient(135deg, #fff5f9 0%, #f0e6f0 100%);
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-input: #fafafa;
+  --bg-hover: #fff5f9;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --border-color: #e0e0e0;
+  --border-light: #f0f0f0;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --shadow-pink: rgba(255, 20, 147, 0.2);
+  --overlay-bg: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark Mode CSS Variables */
+[data-theme="dark"],
+body.dark-mode {
+  --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  --bg-secondary: #1e1e2f;
+  --bg-card: #252538;
+  --bg-input: #2a2a3d;
+  --bg-hover: #333344;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #888888;
+  --border-color: #444455;
+  --border-light: #333344;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-pink: rgba(255, 20, 147, 0.3);
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+}
+
+/* Global Dark Mode Body Styles */
+body.dark-mode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #ffffff;
+}
+
+/* Global Bottom Navigation Dark Mode */
+.bottom-navigation.dark-mode {
+  background: #1e1e2f;
+  border-top-color: #333344;
+}
+
+.bottom-navigation.dark-mode .nav-item {
+  color: #888888;
+}
+
+.bottom-navigation.dark-mode .nav-item.active {
+  color: #ff1493;
+}
+
+.bottom-navigation.dark-mode .nav-item:hover {
+  background: #2a2a3d;
+}
