@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get database URL from environment variable, fallback to SQLite for development
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./backend/db.sqlite")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./db.sqlite")
 
 # Configure engine based on database type
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):

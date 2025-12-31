@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .database import engine, Base
-from . import models  # Import all models
-from .routers import auth_router, static_router, growth_router, reminders_router
+from database import engine, Base
+import models  # Import all models
+from routers import auth_router, static_router, growth_router, reminders_router
 
 app = FastAPI(title="NutriTrack API")
 
