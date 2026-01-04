@@ -9,7 +9,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNavigation from '../components/BottomNavigation';
-import { getCurrentUser } from '../api';
+import { 
+  getCurrentUser,
+  getUserProfile,
+  saveEmergencyContact,
+  getEmergencyContact,
+  sendPartnerInvite,
+  clearAuthToken
+} from '../api';
 import '../styles/Profile.css';
 
 export default function Profile() {
@@ -42,12 +49,17 @@ export default function Profile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const user = await getCurrentUser();
+        const user = await getUserProfile();
         setUserData({
           name: user.full_name || "User",
           email: user.email || "user@email.com",
           profileImage: null
         });
+        
+        // Load emergency contact if exists
+        if (user.emergency_contact) {
+          setEmergencyContact(user.emergency_contact);
+        }
       } catch (error) {
         console.error('Error fetching user data:', error);
       } finally {
@@ -71,18 +83,29 @@ export default function Profile() {
   };
 
   // Handle emergency contact save
-  const handleEmergencyContactSave = () => {
-    // In production, save to API
-    console.log('Emergency contact saved:', emergencyContact);
-    setShowEmergencyModal(false);
+  const handleEmergencyContactSave = async () => {
+    try {
+      await saveEmergencyContact(emergencyContact);
+      console.log('Emergency contact saved:', emergencyContact);
+      setShowEmergencyModal(false);
+    } catch (error) {
+      console.error('Error saving emergency contact:', error);
+      alert('Failed to save emergency contact');
+    }
   };
 
   // Handle partner sync
-  const handlePartnerSync = () => {
-    // In production, send invite to partner
-    console.log('Partner invite sent to:', partnerEmail);
-    setShowPartnerModal(false);
-    setPartnerEmail("");
+  const handlePartnerSync = async () => {
+    try {
+      await sendPartnerInvite(partnerEmail);
+      console.log('Partner invite sent to:', partnerEmail);
+      setShowPartnerModal(false);
+      setPartnerEmail("");
+      alert('Partner invite sent successfully!');
+    } catch (error) {
+      console.error('Error sending partner invite:', error);
+      alert('Failed to send partner invite');
+    }
   };
 
   return (
@@ -178,8 +201,7 @@ export default function Profile() {
 
         {/* Logout Button */}
         <button className="logout-button" onClick={() => {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          clearAuthToken();
           navigate('/login');
         }}>
           <span className="logout-icon">🚪</span>

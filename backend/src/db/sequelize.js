@@ -8,6 +8,7 @@ if (config.database.url.startsWith('sqlite')) {
     dialect: 'sqlite',
     storage: './db.sqlite',
     logging: false,
+    foreignKeys: true,
   });
 } else {
   const dbUrl = new URL(config.database.url);

@@ -9,6 +9,7 @@ import authRoutes from './routes/authRoutes.js';
 import growthRoutes from './routes/growthRoutes.js';
 import reminderRoutes from './routes/reminderRoutes.js';
 import staticRoutes from './routes/staticRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/growth', growthRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/static', staticRoutes);
+app.use('/api/profile', profileRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -44,7 +46,7 @@ const startServer = async () => {
     console.log('Database connection established');
 
     // Sync models with database
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: false, alter: false });
     console.log('Database synced');
 
     // Start server

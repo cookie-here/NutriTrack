@@ -140,6 +140,73 @@ export async function deleteReminder(reminderId) {
   });
 }
 
+// ===== Profile Endpoints =====
+export async function getUserProfile() {
+  return request('/api/profile', {
+    method: 'GET',
+  });
+}
+
+export async function updateUserProfile(profileData) {
+  return request('/api/profile', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(profileData),
+  });
+}
+
+export async function saveEmergencyContact(contactData) {
+  return request('/api/profile/emergency-contact', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(contactData),
+  });
+}
+
+export async function getEmergencyContact() {
+  return request('/api/profile/emergency-contact', {
+    method: 'GET',
+  });
+}
+
+export async function deleteEmergencyContact() {
+  return request('/api/profile/emergency-contact', {
+    method: 'DELETE',
+  });
+}
+
+export async function sendPartnerInvite(partnerEmail) {
+  return request('/api/profile/partner-invite', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ partner_email: partnerEmail }),
+  });
+}
+
+export async function getPartnerInvitations() {
+  return request('/api/profile/partner-invitations', {
+    method: 'GET',
+  });
+}
+
+export async function acceptPartnerInvitation(invitationId) {
+  return request(`/api/profile/partner-invitations/${invitationId}/accept`, {
+    method: 'PATCH',
+  });
+}
+
+export async function declinePartnerInvitation(invitationId) {
+  return request(`/api/profile/partner-invitations/${invitationId}/decline`, {
+    method: 'PATCH',
+  });
+}
+
 // ===== Auth Token Management =====
 export function setAuthToken(token) {
   if (!token) return;
