@@ -19,7 +19,7 @@ const Reminder = sequelize.define('Reminder', {
     type: DataTypes.STRING(255),
   },
   reminder_date: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(10),
   },
   type: {
     type: DataTypes.STRING(50), // 'vaccine' or 'appointment'
@@ -51,6 +51,18 @@ const Reminder = sequelize.define('Reminder', {
   status: {
     type: DataTypes.ENUM('pending', 'completed', 'overdue', 'skipped'),
     defaultValue: 'pending',
+  },
+  total_doses: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  last_dose_date: {
+    type: DataTypes.STRING(10),
+    allowNull: true,
+  },
+  vaccine_icon: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
   },
 }, {
   tableName: 'reminders',

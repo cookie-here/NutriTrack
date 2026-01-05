@@ -1,151 +1,68 @@
 /**
  * DATE INPUT STYLING
  * ==================
- * Styles for the date input with calendar picker
+ * Styles for the native HTML5 date input
+ * Clean, simple, and works across all devices
  */
 
-/* Date Input Wrapper - Container for input and button */
+/* Date Input Wrapper - Container for input and display text */
 .date-input-wrapper {
   position: relative;
   display: flex;
-  align-items: center;
-  gap: 0;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* Date Input Field */
-.date-input {
-  flex: 1;
-  padding-right: 45px !important; /* Space for calendar button */
-}
-
-/* Calendar Icon Button */
-.calendar-icon-btn {
-  position: absolute;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 8px;
-  transition: transform 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.calendar-icon-btn:hover {
-  transform: scale(1.1);
-}
-
-.calendar-icon-btn:active {
-  transform: scale(0.95);
-}
-
-/* Date Picker Popup */
-.date-picker-popup {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #11121a;
-  border: 1px solid #2b2c37;
-  border-radius: 10px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-  padding: 12px;
-  margin-top: 8px;
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-}
-
-/* React DatePicker Customization */
-.react-datepicker-wrapper {
-  width: 100%;
-}
-
-.react-datepicker {
-  border: none;
-  background: #11121a;
-  color: #e2e8f0;
+/* Native Date Input Field */
+.date-input-native {
+  padding: 12px 14px !important;
+  font-size: 16px;
   font-family: inherit;
-}
-
-.react-datepicker__month-container {
-  width: 100%;
-}
-
-.react-datepicker__header {
-  background: linear-gradient(135deg, #c084fc 0%, #7be0d6 100%);
-  color: white;
+  border: 2px solid #2b2c37 !important;
   border-radius: 6px;
-  padding: 10px 0;
-  border: none;
+  background: #1a1b23 !important;
+  color: #e2e8f0 !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.react-datepicker__header__text {
-  color: white;
-  font-weight: 700;
+.date-input-native:hover {
+  border-color: #7be0d6 !important;
+  box-shadow: 0 0 10px rgba(123, 224, 214, 0.1);
 }
 
-.react-datepicker__day-name {
+.date-input-native:focus {
+  outline: none;
+  border-color: #c084fc !important;
+  box-shadow: 0 0 15px rgba(192, 132, 252, 0.2);
+}
+
+/* Date Display Text - Shows formatted date below input */
+.date-display-text {
+  font-size: 13px;
   color: #9ba4b5;
-  font-weight: 600;
-  width: 36px;
-  line-height: 36px;
+  padding: 4px 12px;
+  background: rgba(123, 224, 214, 0.05);
+  border-radius: 4px;
+  border-left: 3px solid #7be0d6;
 }
 
-.react-datepicker__day {
-  width: 36px;
-  line-height: 36px;
-  color: #e2e8f0;
+/* Webkit calendar picker styling (Chrome, Safari, Edge) */
+.date-input-native::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 4px;
+  opacity: 0.8;
+  filter: invert(1);
+  transition: opacity 0.2s ease;
 }
 
-.react-datepicker__day--selected {
-  background: #7be0d6;
-  color: #0f172a;
-  border-radius: 6px;
-  font-weight: 700;
+.date-input-native::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
-.react-datepicker__day--selected:hover {
-  background: #9ff1e9;
-}
-
-.react-datepicker__day:hover {
-  background: rgba(123, 224, 214, 0.15);
-  border-radius: 6px;
-}
-
-.react-datepicker__day--disabled {
-  color: #5a6270;
-  cursor: not-allowed;
-}
-
-.react-datepicker__day--disabled:hover {
-  background: transparent;
-}
-
-.react-datepicker__navigation-icon::before {
-  border-color: white;
-}
-
-/* Mobile Responsive */
-@media (max-width: 600px) {
-  .date-picker-popup {
-    left: -40px;
-    right: auto;
-    width: 300px;
-  }
-
-  .react-datepicker__day {
-    width: 32px;
-    line-height: 32px;
-    font-size: 12px;
-  }
-
-  .react-datepicker__day-name {
-    width: 32px;
-    line-height: 32px;
-    font-size: 11px;
-  }
+/* Firefox specific styling */
+.date-input-native::-moz-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(1);
 }

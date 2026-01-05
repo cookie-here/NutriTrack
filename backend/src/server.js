@@ -3,11 +3,13 @@ import cors from 'cors';
 import sequelize from './db/sequelize.js';
 import { config } from './config/index.js';
 import { errorHandler } from './middleware/auth.js';
+import seedVaccines from './db/vaccineSeeds.js';
 
 // Import routes
 import authRoutes from './routes/authRoutes.js';
 import growthRoutes from './routes/growthRoutes.js';
 import reminderRoutes from './routes/reminderRoutes.js';
+import vaccineRoutes from './routes/vaccineRoutes.js';
 import staticRoutes from './routes/staticRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 
@@ -22,6 +24,7 @@ app.use(cors(config.cors));
 app.use('/api/auth', authRoutes);
 app.use('/api/growth', growthRoutes);
 app.use('/api/reminders', reminderRoutes);
+app.use('/api/vaccines', vaccineRoutes);
 app.use('/api/static', staticRoutes);
 app.use('/api/profile', profileRoutes);
 
@@ -45,9 +48,23 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Database connection established');
 
-    // Sync models with database
-    await sequelize.sync({ force: false, alter: false });
+    // For SQLite, disable foreign key constraints temporarily during sync
+    if (config.database.url.startsWith('sqlite')) {
+      await sequelize.query('PRAGMA foreign_keys = OFF');
+    }
+
+    // Sync models with database - use alter: true to add new columns
+    await sequelize.sync({ force: false, alter: true });
     console.log('Database synced');
+
+    // Re-enable foreign key constraints for SQLite
+    if (config.database.url.startsWith('sqlite')) {
+      await sequelize.query('PRAGMA foreign_keys = ON');
+    }
+
+    // Seed vaccines
+    await seedVaccines();
+    console.log('Vaccine seeds loaded');
 
     // Start server
     const PORT = config.server.port;

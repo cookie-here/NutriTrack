@@ -51,10 +51,7 @@ export async function getCurrentUser() {
 }
 
 export async function register({ fullName, email, dueDate, userType, password, babyDateOfBirth }) {
-  // Backend expects due_date as datetime string; send start of day if provided
-  const dueDateIso = dueDate ? `${dueDate}T00:00:00` : null;
-  const babyDobIso = babyDateOfBirth ? `${babyDateOfBirth}T00:00:00` : null;
-
+  // Send dates as YYYY-MM-DD strings (no timezone conversion needed)
   return request('/api/auth/register', {
     method: 'POST',
     headers: {
@@ -64,9 +61,9 @@ export async function register({ fullName, email, dueDate, userType, password, b
       email,
       password,
       full_name: fullName,
-      due_date: dueDateIso,
+      due_date: dueDate || null,
       user_type: userType,
-      baby_date_of_birth: babyDobIso,
+      baby_date_of_birth: babyDateOfBirth || null,
     }),
   });
 }
@@ -204,6 +201,45 @@ export async function acceptPartnerInvitation(invitationId) {
 export async function declinePartnerInvitation(invitationId) {
   return request(`/api/profile/partner-invitations/${invitationId}/decline`, {
     method: 'PATCH',
+  });
+}
+
+// ===== Vaccine Endpoints =====
+export async function getAllVaccines() {
+  return request('/api/vaccines');
+}
+
+export async function getVaccineById(vaccineId) {
+  return request(`/api/vaccines/${vaccineId}`);
+}
+
+export async function getUserVaccineReminders() {
+  return request('/api/vaccines/reminders/user');
+}
+
+export async function createVaccineReminder(vaccineData) {
+  return request('/api/vaccines/reminders', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(vaccineData),
+  });
+}
+
+export async function updateVaccineReminderStatus(reminderId, statusData) {
+  return request(`/api/vaccines/reminders/${reminderId}/status`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(statusData),
+  });
+}
+
+export async function deleteVaccineReminder(reminderId) {
+  return request(`/api/vaccines/reminders/${reminderId}`, {
+    method: 'DELETE',
   });
 }
 

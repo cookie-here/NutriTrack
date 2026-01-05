@@ -20,7 +20,7 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING(255),
   },
   due_date: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(10),
     allowNull: true,
   },
   user_type: {
@@ -28,7 +28,7 @@ const User = sequelize.define('User', {
     allowNull: true,
   },
   baby_date_of_birth: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(10),
     allowNull: true,
   },
   created_at: {

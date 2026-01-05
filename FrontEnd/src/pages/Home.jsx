@@ -15,7 +15,8 @@ import NotificationBanner from '../components/NotificationBanner';
 import TipCard from '../components/TipCard';
 import BottomNavigation from '../components/BottomNavigation';
 import NotificationService from '../services/NotificationService';
-import { getReminders, getDailyTip, getCurrentUser, getAuthToken } from '../api';
+import { getReminders, getDailyTip, getCurrentUser, getAuthToken, getUserVaccineReminders } from '../api';
+import { isVaccineDueWithin } from '../utils/vaccineSchedule';
 import '../styles/Home.css';
 import '../styles/NotificationCard.css';
 
@@ -97,7 +98,7 @@ export default function Home() {
   });
 
   // Vaccine data placeholder; should be populated from backend schedule
-  const vaccinesData = [];
+  const [vaccinesData, setVaccinesData] = useState([]);
 
   // Initialize notification service on component mount
   useEffect(() => {
@@ -105,18 +106,37 @@ export default function Home() {
       const hasPermission = await NotificationService.initialize();
       setNotificationPermission(hasPermission);
 
-      // Get vaccines due within 7 days
-      const upcomingVaccines = vaccinesData.filter(vaccine => {
-        if (vaccine.status === 'taken') return false;
-        return NotificationService.isDueWithinWeek(vaccine.dueDate);
-      });
+      // Only fetch vaccine reminders if user is authenticated
+      const token = getAuthToken();
+      if (token) {
+        try {
+          const remindersData = await getUserVaccineReminders();
+          setVaccinesData(remindersData || []);
 
-      // Send system notification if there are vaccines due
-      if (upcomingVaccines.length > 0 && hasPermission) {
-        // Add a small delay to ensure app is ready
-        setTimeout(() => {
-          NotificationService.sendVaccineReminders(upcomingVaccines);
-        }, 1000);
+          // Get vaccines due within 7 days
+          const upcomingVaccines = (remindersData || []).filter(vaccine => {
+            if (vaccine.status === 'completed') return false;
+            return isVaccineDueWithin(vaccine.reminder_date, 7);
+          });
+
+          // Send system notification if there are vaccines due
+          if (upcomingVaccines.length > 0 && hasPermission) {
+            // Add a small delay to ensure app is ready
+            setTimeout(() => {
+              upcomingVaccines.forEach(vaccine => {
+                NotificationService.sendNotification(
+                  `💉 ${vaccine.vaccine_name} - Dose ${vaccine.dose_number}`,
+                  {
+                    body: `Due on ${new Date(vaccine.reminder_date).toDateString()}`,
+                    tag: `vaccine-reminder-${vaccine.id}`,
+                  }
+                );
+              });
+            }, 1000);
+          }
+        } catch (error) {
+          console.error('Error fetching vaccine reminders:', error);
+        }
       }
     };
 

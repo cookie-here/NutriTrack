@@ -330,6 +330,28 @@
   background: #229954;
 }
 
+.vaccine-action-btn.add-vaccine {
+  background: var(--vaccine-blue);
+  color: var(--white);
+}
+
+.vaccine-action-btn.add-vaccine:hover {
+  background: #0284c7;
+  transform: translateY(-2px);
+}
+
+/* ===== AVAILABLE VACCINE CARD ===== */
+.vaccine-card.available {
+  border-left: 4px solid var(--vaccine-blue);
+  opacity: 0.9;
+}
+
+.vaccine-card.available .vaccine-card-status.available {
+  background: rgba(56, 189, 248, 0.2);
+  color: var(--vaccine-blue);
+  border: 1px solid var(--vaccine-blue);
+}
+
 /* ===== VACCINE SECTION TITLE ===== */
 .vaccine-section-title {
   font-size: 18px;

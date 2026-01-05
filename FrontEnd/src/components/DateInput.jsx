@@ -1,20 +1,16 @@
 /**
- * DATE INPUT COMPONENT WITH CALENDAR PICKER
- * ==========================================
- * Custom date input with calendar icon
- * Opens a mini calendar when clicked
+ * DATE INPUT COMPONENT
+ * ====================
+ * Simple, clean date input using native HTML5 date picker
+ * Better UX than custom calendar, works across all devices
  * 
  * Features:
- * - Calendar icon button
- * - Date picker popup
- * - Date formatted display
- * - Keyboard input support
+ * - Native date picker (OS native on mobile)
+ * - Clear visual feedback
+ * - Format display in readable form (Jan 5, 2026)
+ * - Direct keyboard input support
+ * - Min/max date constraints
  */
-
-import { useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import '../styles/DateInput.css';
 
 export default function DateInput({ 
   label, 
@@ -25,68 +21,41 @@ export default function DateInput({
   minDate,
   maxDate
 }) {
-  // State for date picker visibility
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Convert string date to Date object for DatePicker
-  const selectedDate = value ? new Date(value) : null;
-
-  // Handle date selection
-  const handleDateChange = (date) => {
-    // Format date to YYYY-MM-DD format
-    const formattedDate = date ? date.toISOString().split('T')[0] : '';
-    
-    // Create synthetic event to match form input onChange
-    const event = {
-      target: {
-        name: name,
-        value: formattedDate
-      }
-    };
-    
-    onChange(event);
-    setIsOpen(false);
+  // Format date for display (e.g., "Jan 5, 2026")
+  const formatDisplayDate = (dateString) => {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
   };
 
   return (
     <div className="form-group">
       <label htmlFor={id} className="form-label">{label}</label>
       
-      {/* DATE INPUT WRAPPER */}
       <div className="date-input-wrapper">
-        
-        {/* TEXT INPUT FOR DISPLAY */}
+        {/* NATIVE DATE INPUT */}
         <input
           id={id}
-          type="text"
-          className="form-input date-input"
+          type="date"
+          name={name}
           value={value}
-          placeholder="YYYY-MM-DD"
-          readOnly
+          onChange={onChange}
+          min={minDate}
+          max={maxDate}
+          className="form-input date-input-native"
+          required
         />
-
-        {/* CALENDAR ICON BUTTON */}
-        <button
-          type="button"
-          className="calendar-icon-btn"
-          onClick={() => setIsOpen(!isOpen)}
-          title="Open Calendar"
-        >
-          📅
-        </button>
-
-        {/* DATE PICKER POPUP */}
-        {isOpen && (
-          <div className="date-picker-popup">
-            <DatePicker
-              selected={selectedDate}
-              onChange={handleDateChange}
-              inline
-              minDate={minDate}
-              maxDate={maxDate}
-              dateFormat="yyyy-MM-dd"
-            />
-          </div>
+        
+        {/* DISPLAY THE FORMATTED DATE */}
+        {value && (
+          <span className="date-display-text">
+            {formatDisplayDate(value)}
+          </span>
         )}
       </div>
     </div>
