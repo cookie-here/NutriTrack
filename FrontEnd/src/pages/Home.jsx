@@ -19,6 +19,63 @@ import { getReminders, getDailyTip, getCurrentUser, getAuthToken } from '../api'
 import '../styles/Home.css';
 import '../styles/NotificationCard.css';
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Derive trimester using a 40-week gestation counted from estimated conception (LMP) based on due date
+const calculateTrimester = (dueDateString) => {
+  if (!dueDateString) return { trimester: 'Unknown', weeksPregnant: null };
+
+  const dueDate = new Date(dueDateString);
+  if (Number.isNaN(dueDate.getTime())) return { trimester: 'Unknown', weeksPregnant: null };
+
+  const today = new Date();
+  const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const estimatedLmp = new Date(dueDate.getTime() - 280 * DAY_MS); // 40 weeks before due date
+  const normalizedLmp = new Date(estimatedLmp.getFullYear(), estimatedLmp.getMonth(), estimatedLmp.getDate());
+
+  const daysPregnant = Math.floor((normalizedToday - normalizedLmp) / DAY_MS);
+  if (daysPregnant < 0) return { trimester: 'Unknown', weeksPregnant: 0 };
+
+  const weeksPregnant = Math.min(40, Math.floor(daysPregnant / 7));
+
+  if (weeksPregnant < 13) {
+    return { trimester: 'Trimester 1', weeksPregnant };
+  }
+  if (weeksPregnant < 28) {
+    return { trimester: 'Trimester 2', weeksPregnant };
+  }
+  return { trimester: 'Trimester 3', weeksPregnant };
+};
+
+// Derive baby age in weeks/months from date of birth
+const calculateBabyAge = (dobString) => {
+  if (!dobString) return { label: 'Age unknown', monthsValue: null, weeks: null };
+
+  const dob = new Date(dobString);
+  if (Number.isNaN(dob.getTime())) return { label: 'Age unknown', monthsValue: null, weeks: null };
+
+  const today = new Date();
+  const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const normalizedDob = new Date(dob.getFullYear(), dob.getMonth(), dob.getDate());
+
+  const daysOld = Math.floor((normalizedToday - normalizedDob) / DAY_MS);
+  if (daysOld < 0) return { label: 'Baby not born yet', monthsValue: 0, weeks: 0 };
+
+  const weeks = Math.floor(daysOld / 7);
+  const monthsValue = Math.min(24, daysOld / 30.44); // cap at 24 months for UI
+
+  let label;
+  if (monthsValue < 1) {
+    label = `${weeks}w`;
+  } else {
+    const wholeMonths = Math.floor(monthsValue);
+    const remainingDays = Math.floor(daysOld - wholeMonths * 30.44);
+    label = `${wholeMonths}m${remainingDays > 0 ? ` ${remainingDays}d` : ''}`;
+  }
+
+  return { label, monthsValue, weeks };
+};
+
 export default function Home() {
   const navigate = useNavigate();
   // State for notification permission
@@ -30,72 +87,17 @@ export default function Home() {
   const [userData, setUserData] = useState({
     userName: "Loading...",
     trimester: "Calculating...",
-    dueDate: null
+    dueDate: null,
+    weeksPregnant: null,
+    userType: 'pregnant',
+    babyAgeLabel: 'Age unknown',
+    babyAgeMonths: null,
+    babyAgeWeeks: null,
+    babyDob: null
   });
 
-  // Vaccine data for notification checking
-  const vaccinesData = [
-    {
-      id: 1,
-      name: "Tdap",
-      emoji: "💉",
-      description: "Tetanus, diphtheria, and pertussis",
-      dueDate: "2025-01-05",
-      status: "taken",
-      forPerson: "Mother",
-      details: "Single dose"
-    },
-    {
-      id: 2,
-      name: "Flu Shot",
-      emoji: "💉",
-      description: "Annual influenza vaccine",
-      dueDate: "2026-01-04",
-      status: "upcoming",
-      forPerson: "Mother",
-      details: "Yearly"
-    },
-    {
-      id: 3,
-      name: "Hepatitis B",
-      emoji: "💉",
-      description: "First dose at birth",
-      dueDate: "2026-01-04",
-      status: "taken",
-      forPerson: "Baby",
-      details: "1 of 3"
-    },
-    {
-      id: 4,
-      name: "Hepatitis B",
-      emoji: "💉",
-      description: "Second dose",
-      dueDate: "2026-02-01",
-      status: "upcoming",
-      forPerson: "Baby",
-      details: "2 of 3"
-    },
-    {
-      id: 5,
-      name: "DtaP",
-      emoji: "💉",
-      description: "Diphtheria, tetanus, pertussis",
-      dueDate: "2026-02-04",
-      status: "upcoming",
-      forPerson: "Baby",
-      details: "1 of 5"
-    },
-    {
-      id: 6,
-      name: "Polio",
-      emoji: "💉",
-      description: "Poliomyelitis vaccine",
-      dueDate: "2026-02-04",
-      status: "upcoming",
-      forPerson: "Baby",
-      details: "1 of 4"
-    }
-  ];
+  // Vaccine data placeholder; should be populated from backend schedule
+  const vaccinesData = [];
 
   // Initialize notification service on component mount
   useEffect(() => {
@@ -127,7 +129,13 @@ export default function Home() {
           setUserData({
             userName: "Guest",
             trimester: "Unknown",
-            dueDate: null
+            dueDate: null,
+            weeksPregnant: null,
+            userType: 'pregnant',
+            babyAgeLabel: 'Age unknown',
+            babyAgeMonths: null,
+            babyAgeWeeks: null,
+            babyDob: null
           });
           setLoading(false);
           return;
@@ -136,34 +144,36 @@ export default function Home() {
         // Fetch current user from backend
         const user = await getCurrentUser();
         console.log('User data fetched:', user);
-        
-        // Calculate trimester based on due date
-        let trimester = "Calculating...";
-        if (user.due_date) {
-          const now = new Date();
-          const dueDate = new Date(user.due_date);
-          const weeksPregnant = Math.floor((now - new Date(now.getFullYear() - 0.75, 0, 1)) / (7 * 24 * 60 * 60 * 1000));
-          
-          if (weeksPregnant < 13) {
-            trimester = "Trimester 1";
-          } else if (weeksPregnant < 26) {
-            trimester = "Trimester 2";
-          } else {
-            trimester = "Trimester 3";
-          }
-        }
-        
+
+        const userType = user.user_type || 'pregnant';
+        localStorage.setItem('userType', userType);
+
+        const { trimester, weeksPregnant } = calculateTrimester(user.due_date);
+        const babyAge = calculateBabyAge(user.baby_date_of_birth);
+
         setUserData({
           userName: user.full_name || "User",
-          trimester: trimester,
-          dueDate: user.due_date
+          trimester: userType === 'pregnant' ? trimester : babyAge.label,
+          dueDate: userType === 'pregnant' ? user.due_date : user.baby_date_of_birth,
+          weeksPregnant: userType === 'pregnant' ? weeksPregnant : null,
+          userType,
+          babyAgeLabel: babyAge.label,
+          babyAgeMonths: babyAge.monthsValue,
+          babyAgeWeeks: babyAge.weeks,
+          babyDob: user.baby_date_of_birth
         });
       } catch (error) {
         console.error('Error fetching user data:', error);
         setUserData({
           userName: "Guest",
           trimester: "Unknown",
-          dueDate: null
+          dueDate: null,
+          weeksPregnant: null,
+          userType: 'pregnant',
+          babyAgeLabel: 'Age unknown',
+          babyAgeMonths: null,
+          babyAgeWeeks: null,
+          babyDob: null
         });
       }
 
@@ -218,6 +228,12 @@ export default function Home() {
           userName={userData.userName}
           trimester={userData.trimester}
           dueDate={userData.dueDate}
+          weeksPregnant={userData.weeksPregnant}
+          userType={userData.userType}
+          babyAgeLabel={userData.babyAgeLabel}
+          babyAgeMonths={userData.babyAgeMonths}
+          babyAgeWeeks={userData.babyAgeWeeks}
+          babyDob={userData.babyDob}
         />
 
         {/* Vaccine Notifications - Shows alerts for vaccines due within 7 days */}
@@ -237,7 +253,7 @@ export default function Home() {
       </div>
 
       {/* Bottom Navigation */}
-      <BottomNavigation activeTab="Home" />
+      <BottomNavigation activeTab="Home" userType={userData.userType} />
     </div>
   );
 }

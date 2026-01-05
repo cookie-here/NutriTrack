@@ -21,7 +21,9 @@ export default function DateInput({
   id, 
   value,
   onChange,
-  name 
+  name,
+  minDate,
+  maxDate
 }) {
   // State for date picker visibility
   const [isOpen, setIsOpen] = useState(false);
@@ -80,7 +82,8 @@ export default function DateInput({
               selected={selectedDate}
               onChange={handleDateChange}
               inline
-              minDate={new Date()}
+              minDate={minDate}
+              maxDate={maxDate}
               dateFormat="yyyy-MM-dd"
             />
           </div>

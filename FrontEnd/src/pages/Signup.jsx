@@ -205,6 +205,7 @@ export default function Signup() {
               name="dueDate"
               value={formData.dueDate}
               onChange={handleInputChange}
+              minDate={new Date()}
             />
           ) : (
             <DateInput
@@ -213,6 +214,7 @@ export default function Signup() {
               name="babyDateOfBirth"
               value={formData.babyDateOfBirth}
               onChange={handleInputChange}
+              maxDate={new Date()}
             />
           )}
 

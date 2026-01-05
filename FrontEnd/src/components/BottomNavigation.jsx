@@ -6,18 +6,32 @@
  * Now navigable with routing
  */
 
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function BottomNavigation({ activeTab = "Home" }) {
+export default function BottomNavigation({ activeTab = "Home", userType: userTypeProp }) {
   const navigate = useNavigate();
 
-  const tabs = [
-    { id: 1, label: "Home", icon: "🏠", path: "/home" },
-    { id: 2, label: "Nutrition", icon: "🍎", path: "/nutrition" },
-    { id: 3, label: "Vaccines", icon: "💉", path: "/vaccines" },
-    { id: 4, label: "Feeding", icon: "👶", path: "/feeding" },
-    { id: 5, label: "Growth", icon: "📈", path: "/growth" }
-  ];
+  const inferredUserType = userTypeProp || localStorage.getItem('userType') || localStorage.getItem('selectedStage') || 'pregnant';
+
+  const tabs = useMemo(() => {
+    if (inferredUserType === 'pregnant') {
+      return [
+        { id: 1, label: "Home", icon: "🏠", path: "/home" },
+        { id: 2, label: "Nutrition", icon: "🍎", path: "/nutrition" },
+        { id: 3, label: "Vaccines", icon: "💉", path: "/vaccines" }
+      ];
+    }
+
+    // new parents keep full set
+    return [
+      { id: 1, label: "Home", icon: "🏠", path: "/home" },
+      { id: 2, label: "Nutrition", icon: "🍎", path: "/nutrition" },
+      { id: 3, label: "Vaccines", icon: "💉", path: "/vaccines" },
+      { id: 4, label: "Feeding", icon: "👶", path: "/feeding" },
+      { id: 5, label: "Growth", icon: "📈", path: "/growth" }
+    ];
+  }, [inferredUserType]);
 
   return (
     <nav className="bottom-navigation">
