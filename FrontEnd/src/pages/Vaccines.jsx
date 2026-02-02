@@ -89,6 +89,11 @@ export default function Vaccines() {
       // Mark auto-setup as done for this baby
       const autoSetupKey = `vaccine_auto_setup_baby_${selectedBaby.id}`;
       localStorage.setItem(autoSetupKey, 'true');
+      
+      // Refresh vaccine reminders to show newly created reminders
+      const remindersData = await getUserVaccineReminders();
+      setUserReminders(remindersData || []);
+      
       alert('✓ Vaccine reminders auto-created successfully!');
     } catch (error) {
       console.error('Error in manual auto-setup:', error);
@@ -196,8 +201,14 @@ export default function Vaccines() {
     // Track vaccines already scheduled
     const vaccinesWithReminders = new Set(uniqueReminders.map(r => r.vaccine_name));
 
-    // Build display list starting with reminders
-    const displayVaccines = [...uniqueReminders];
+    // Build display list starting with reminders - add recommended property from original vaccine data
+    const displayVaccines = uniqueReminders.map(reminder => {
+      const originalVaccine = allVaccines.find(v => v.name === reminder.vaccine_name);
+      return {
+        ...reminder,
+        recommended: originalVaccine?.recommended || false
+      };
+    });
 
     // Add available vaccines that have no reminders yet (only baby vaccines)
     allVaccines.forEach(vaccine => {
@@ -272,11 +283,6 @@ export default function Vaccines() {
         last_dose_date: new Date().toISOString(),
       });
 
-      // Step 2: Update local state - mark current dose as completed
-      const updatedReminders = userReminders.map(v => 
-        v.id === id ? { ...v, status: 'completed' } : v
-      );
-
       // Send notification when vaccine is completed
       if (Notification.permission === 'granted') {
         NotificationService.sendNotification(
@@ -289,13 +295,13 @@ export default function Vaccines() {
         );
       }
 
-      // Step 3: Check if next dose needs to be created
+      // Step 2: Check if next dose needs to be created
       const currentDose = vaccineToMark.dose_number || 1;
       const totalDoses = vaccineToMark.total_doses || 1;
 
       if (currentDose < totalDoses) {
         // Check if next dose already exists
-        const nextDoseExists = updatedReminders.some(
+        const nextDoseExists = userReminders.some(
           r => r.vaccine_name === vaccineToMark.vaccine_name && 
                r.dose_number === currentDose + 1
         );
@@ -321,8 +327,7 @@ export default function Vaccines() {
               vaccine_icon: vaccineToMark.vaccine_icon,
             };
 
-            const newReminder = await createVaccineReminder(nextDoseReminder);
-            updatedReminders.push(newReminder);
+            await createVaccineReminder(nextDoseReminder);
 
             // Notify about next dose
             if (Notification.permission === 'granted') {
@@ -338,8 +343,9 @@ export default function Vaccines() {
         }
       }
 
-      // Step 4: Update state ONCE with all changes
-      setUserReminders(updatedReminders);
+      // Step 3: Refresh all vaccine reminders from server to ensure UI is up to date
+      const refreshedReminders = await getUserVaccineReminders();
+      setUserReminders(refreshedReminders || []);
     } catch (error) {
       console.error('Error marking vaccine as done:', error);
     }
