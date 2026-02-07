@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import NutritionHeader from '../components/NutritionHeader';
 import NutritionCard from '../components/NutritionCard';
 import BottomNavigation from '../components/BottomNavigation';
-import { getPregnancyFoods, getNutritionTips, getSafeFoods, getCurrentUser } from '../api';
+import { getPregnancyFoods, getNutritionTips, getCurrentUser } from '../api';
 import '../styles/Nutrition.css';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -43,7 +43,6 @@ const calculateTrimester = (dueDateString) => {
 export default function PregnantNutrition() {
   const [activeTab, setActiveTab] = useState('recommended');
   const [nutritionTips, setNutritionTips] = useState([]);
-  const [safeFoods, setSafeFoods] = useState({ safe: [], unsafe: [] });
   const [loading, setLoading] = useState(true);
   const [currentTrimester, setCurrentTrimester] = useState('Unknown');
   const [foodItems, setFoodItems] = useState({ recommended: [], avoid: [] });
@@ -52,15 +51,13 @@ export default function PregnantNutrition() {
   useEffect(() => {
     const fetchNutritionData = async () => {
       try {
-        const [tipsData, foodsData, foodItemsData, user] = await Promise.all([
+        const [tipsData, foodItemsData, user] = await Promise.all([
           getNutritionTips(),
-          getSafeFoods(),
           getPregnancyFoods(),
           getCurrentUser().catch(() => null)
         ]);
         
         setNutritionTips(tipsData.tips || []);
-        setSafeFoods(foodsData);
         
         // Set food items from API, fallback to empty arrays if not available
         if (foodItemsData) {

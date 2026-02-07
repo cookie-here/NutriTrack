@@ -19,8 +19,6 @@ export default function NutritionCard({
   const displayCategory = food?.category || category;
   const displayEmoji = food?.emoji || emoji;
   const displayDescription = food?.description || description;
-  const displayId = food?.id || id;
-
   return (
     <div className="nutrition-item-card" onClick={onClick}>
       <div className="nutrition-item-emoji">{displayEmoji}</div>

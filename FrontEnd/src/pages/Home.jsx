@@ -260,7 +260,7 @@ export default function Home() {
 
     initializeNotifications();
     fetchData();
-  }, [navigate, selectedBaby, storedUserType]);
+  }, [navigate, selectedBaby, storedUserType, refreshBabies]);
 
   return (
     <div className="home-container">

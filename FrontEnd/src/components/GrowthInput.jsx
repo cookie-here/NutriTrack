@@ -5,7 +5,7 @@
  * Tracks weight, height, and head circumference
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import '../styles/GrowthInput.css';
 
 export default function GrowthInput({ babyId, onSubmit, isLoading = false, onCancel }) {

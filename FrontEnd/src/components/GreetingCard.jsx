@@ -14,32 +14,18 @@ const TRIMESTER_SEGMENTS = [
   { label: 'Trimester 3', startWeek: 28, endWeek: 40 }
 ];
 
-const BABY_AGE_SEGMENTS = [
-  { label: '0-6m', maxMonths: 6 },
-  { label: '6-12m', maxMonths: 12 },
-  { label: '12-24m', maxMonths: 24 }
-];
-
 export default function GreetingCard({
   userName = "",
   trimester = "Trimester 2",
   dueDate = "",
   weeksPregnant = null,
-  userType = 'pregnant',
-  babyAgeLabel = 'Age unknown',
-  babyAgeMonths = null,
-  babyAgeWeeks = null,
-  babyDob = null
+  userType = 'pregnant'
 }) {
   const navigate = useNavigate();
 
   const safeWeeks = typeof weeksPregnant === 'number' ? Math.max(0, Math.min(40, weeksPregnant)) : null;
   const progressPercent = safeWeeks !== null ? (safeWeeks / 40) * 100 : null;
   const activeTrimesterIndex = TRIMESTER_SEGMENTS.findIndex(seg => trimester === seg.label);
-
-  const safeBabyMonths = typeof babyAgeMonths === 'number' ? Math.max(0, Math.min(24, babyAgeMonths)) : null;
-  const babyProgressPercent = safeBabyMonths !== null ? (safeBabyMonths / 24) * 100 : null;
-  const activeAgeIndex = BABY_AGE_SEGMENTS.findIndex(seg => safeBabyMonths !== null && safeBabyMonths <= seg.maxMonths);
 
   return (
     <div className="greeting-card">

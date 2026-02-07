@@ -39,7 +39,6 @@ function formatDateOnly(dateString) {
 }
 
 export default function VaccineCard({ 
-  id = 1,
   name = "Vaccine Name",
   emoji = "💉",
   description = "Vaccine description",

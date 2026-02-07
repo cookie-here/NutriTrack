@@ -6,7 +6,6 @@
  */
 
 export default function MilestoneCard({ 
-  id = 1,
   name = "Milestone Name",
   emoji = "😊",
   ageInMonths = 2,

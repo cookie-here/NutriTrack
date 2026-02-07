@@ -5,7 +5,6 @@
  * Formatted like the official vaccination card
  */
 
-import { useState } from 'react';
 import { calculateBabyAgeDetailed } from '../utils/babyAge';
 import logo from '../assets/logo.png';
 import '../styles/KhopCard.css';

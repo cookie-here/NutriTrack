@@ -46,11 +46,11 @@ const calculateTrimester = (dueDateString) => {
 
 export default function PregnantHome() {
   
-  const [notificationPermission, setNotificationPermission] = useState(false);
+  const [_notificationPermission, setNotificationPermission] = useState(false);
   const [tip, setTip] = useState("Stay hydrated! Drink at least 8 glasses of water daily.");
   const [tipError, setTipError] = useState(null);
   const [reminders, setReminders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [userData, setUserData] = useState({
     userName: "Loading...",
     trimester: "Calculating...",
