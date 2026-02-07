@@ -392,10 +392,11 @@ export default function Vaccines() {
       />
 
       {babies && babies.length > 1 && (
-        <div className="vaccines-baby-selector">
-          <label htmlFor="vaccines-baby-select">Select Baby</label>
+        <div className="baby-selector-container">
+          <label className="baby-selector-label" htmlFor="vaccines-baby-select">Select Baby</label>
           <select
             id="vaccines-baby-select"
+            className="baby-selector-dropdown"
             value={selectedBaby?.id || ''}
             onChange={(event) => {
               const selectedId = parseInt(event.target.value, 10);

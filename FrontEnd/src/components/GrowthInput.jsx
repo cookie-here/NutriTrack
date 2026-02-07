@@ -8,9 +8,12 @@
 import { useState } from 'react';
 import '../styles/GrowthInput.css';
 
-export default function GrowthInput({ babyId, onSubmit, isLoading = false, onCancel }) {
+export default function GrowthInput({ babyId, babyDOB, onSubmit, isLoading = false, onCancel }) {
+  const today = new Date().toISOString().split('T')[0];
+  const minDate = babyDOB ? new Date(babyDOB).toISOString().split('T')[0] : null;
+  
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: today,
     weight_kg: '',
     height_cm: '',
     head_circumference_cm: '',
@@ -38,6 +41,16 @@ export default function GrowthInput({ babyId, onSubmit, isLoading = false, onCan
 
     if (!formData.date) {
       newErrors.date = 'Date is required';
+    } else {
+      const selectedDate = new Date(formData.date + 'T00:00:00');
+      const todayDate = new Date(today + 'T00:00:00');
+      const dobDate = minDate ? new Date(minDate + 'T00:00:00') : null;
+
+      if (selectedDate > todayDate) {
+        newErrors.date = 'Date cannot be in the future';
+      } else if (dobDate && selectedDate < dobDate) {
+        newErrors.date = 'Date cannot be before baby\'s birth date';
+      }
     }
 
     if (!formData.weight_kg) {
@@ -64,9 +77,10 @@ export default function GrowthInput({ babyId, onSubmit, isLoading = false, onCan
       return;
     }
 
+    // Create ISO date string at noon UTC to preserve the selected date
     const submitData = {
       baby_id: babyId,
-      date: new Date(formData.date).toISOString(),
+      date: formData.date + 'T12:00:00.000Z',
       weight_kg: parseFloat(formData.weight_kg),
       height_cm: parseFloat(formData.height_cm),
       head_circumference_cm: formData.head_circumference_cm ? parseFloat(formData.head_circumference_cm) : null,
@@ -87,6 +101,8 @@ export default function GrowthInput({ babyId, onSubmit, isLoading = false, onCan
           name="date"
           value={formData.date}
           onChange={handleChange}
+          min={minDate}
+          max={today}
           className={`form-input ${errors.date ? 'error' : ''}`}
           disabled={isLoading}
         />

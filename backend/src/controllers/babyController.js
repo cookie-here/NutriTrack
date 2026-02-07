@@ -126,15 +126,19 @@ export const deleteBaby = async (req, res, next) => {
     const userId = req.user.id;
 
     const baby = await Baby.findOne({
-      where: { id: babyId, user_id: userId, is_active: true },
+      where: { id: babyId, user_id: userId },
     });
 
     if (!baby) {
       return res.status(404).json({ detail: 'Baby not found' });
     }
 
-    // Soft delete - mark as inactive
-    await baby.update({ is_active: false });
+    // Hard delete - permanently remove from database
+    // First delete all related records
+    await GrowthRecord.destroy({ where: { baby_id: babyId } });
+    
+    // Then delete the baby
+    await baby.destroy();
 
     return res.status(204).end();
   } catch (error) {

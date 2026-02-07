@@ -46,14 +46,7 @@ export default function ReminderCard({ reminders = [], onReminderDeleted }) {
                 <h3>{reminder.title}</h3>
                 <p>{reminder.formattedDate || reminder.description}</p>
               </div>
-              <button
-                className="reminder-delete-button"
-                onClick={() => handleDeleteReminder(reminder.id, reminder.title)}
-                title="Delete reminder"
-                aria-label="Delete reminder"
-              >
-                �️
-              </button>
+
             </div>
           ))
         ) : (

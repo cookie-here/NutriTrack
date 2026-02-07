@@ -208,16 +208,33 @@ export default function Growth() {
 
   const [chartMetric, setChartMetric] = useState('weight');
 
-  // Calculate growth chart data
-  const chartPoints = growthRecords
-    .slice()
-    .reverse()
-    .map((record) => ({
-      date: new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      weight: record.weight_kg,
-      height: record.height_cm,
-      head: record.head_circumference_cm,
-    }));
+  // Calculate growth chart data - include birth measurements as first point
+  const chartPoints = (() => {
+    const points = [];
+    
+    // Add birth measurements as the first data point if baby exists
+    if (selectedBaby && selectedBaby.date_of_birth) {
+      points.push({
+        date: new Date(selectedBaby.date_of_birth).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        weight: selectedBaby.weight_at_birth_kg,
+        height: selectedBaby.height_at_birth_cm,
+        head: selectedBaby.head_circumference_at_birth_cm,
+      });
+    }
+    
+    // Add all growth records
+    const recordPoints = growthRecords
+      .slice()
+      .reverse()
+      .map((record) => ({
+        date: new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        weight: record.weight_kg,
+        height: record.height_cm,
+        head: record.head_circumference_cm,
+      }));
+    
+    return [...points, ...recordPoints];
+  })();
 
   const metricConfig = {
     weight: { label: 'Weight', unit: 'kg', icon: '⚖️' },
@@ -332,17 +349,12 @@ export default function Growth() {
           <div className="tracking-section">
             <div className="section-header">
               <h2>📈 Growth Tracking: {selectedBaby.name}</h2>
-              <button 
-                className="add-button"
-                onClick={() => setShowGrowthInput(!showGrowthInput)}
-              >
-                {showGrowthInput ? '✕ Cancel' : '+ Record Measurement'}
-              </button>
             </div>
 
             {showGrowthInput && (
               <GrowthInput 
                 babyId={selectedBaby.id}
+                babyDOB={selectedBaby.date_of_birth}
                 onSubmit={handleAddGrowthRecord}
                 isLoading={growthInputLoading}
                 onCancel={() => setShowGrowthInput(false)}

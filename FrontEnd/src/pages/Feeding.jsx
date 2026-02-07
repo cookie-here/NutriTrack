@@ -144,13 +144,6 @@ const FEEDING_MILESTONES = [
   { age: '10-12 months', milestone: 'Eating more table foods with family meals' }
 ];
 
-const PUMPING_SCHEDULE = [
-  { title: 'Starting Out', frequency: 'Every 2-3 hours', amount: '½ - 2 oz per session', tips: 'Ensure proper flange fit, relax and warm breast' },
-  { title: '1-3 Months', frequency: 'Every 3-4 hours', amount: '2-4 oz per session', tips: 'Session takes 15-20 minutes, store properly' },
-  { title: '3-6 Months', frequency: 'Every 4-6 hours', amount: '4-6 oz per session', tips: 'Can combine milk from multiple sessions' },
-  { title: '6+ Months', frequency: 'Every 4-8 hours or as needed', amount: '6-10 oz per session', tips: 'Power pumping can increase supply if needed' }
-];
-
 export default function Feeding() {
   const navigate = useNavigate();
   const { selectedBaby, babies, setSelectedBaby } = useBabyContext();
@@ -162,7 +155,6 @@ export default function Feeding() {
   const [_loading, setLoading] = useState(true);
   const [feedingLogs, setFeedingLogs] = useState([]);
   const [reminders, setReminders] = useState([]);
-  const [showPumpingGuide, setShowPumpingGuide] = useState(false);
 
   const [logForm, setLogForm] = useState({
     time: new Date().toISOString().slice(0, 16),
@@ -323,13 +315,7 @@ export default function Feeding() {
           >
             🔔 Set Reminder
           </button>
-          <button 
-            className="action-btn pumping-btn"
-            onClick={() => setShowPumpingGuide(!showPumpingGuide)}
-            title="View pumping guide"
-          >
-            💪 Pumping Guide
-          </button>
+
         </div>
 
         {/* Feeding Tabs */}
@@ -457,22 +443,7 @@ export default function Feeding() {
           </div>
         )}
 
-        {/* Pumping Guide Section */}
-        {showPumpingGuide && (
-          <div className="pumping-guide-section">
-            <h3 className="feeding-section-title">Pumping Schedule Guide</h3>
-            {PUMPING_SCHEDULE.map((schedule, idx) => (
-              <div key={idx} className="pumping-card">
-                <h4>{schedule.title}</h4>
-                <div className="pumping-info">
-                  <p><strong>Frequency:</strong> {schedule.frequency}</p>
-                  <p><strong>Amount per session:</strong> {schedule.amount}</p>
-                  <p><strong>Tips:</strong> {schedule.tips}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+
       </div>
 
       {/* Feeding Log Modal */}

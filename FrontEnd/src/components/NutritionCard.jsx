@@ -29,7 +29,6 @@ export default function NutritionCard({
         </h4>
         <p>{displayDescription}</p>
       </div>
-      <span className="nutrition-item-arrow">→</span>
     </div>
   );
 }
