@@ -6,6 +6,7 @@
  */
 
 export default function NutritionCard({ 
+  food,
   id = 1,
   name = "Food Name", 
   category = "Category",
@@ -13,15 +14,22 @@ export default function NutritionCard({
   description = "Food description",
   onClick = () => {}
 }) {
+  // If food object is passed, use its properties
+  const displayName = food?.name || name;
+  const displayCategory = food?.category || category;
+  const displayEmoji = food?.emoji || emoji;
+  const displayDescription = food?.description || description;
+  const displayId = food?.id || id;
+
   return (
     <div className="nutrition-item-card" onClick={onClick}>
-      <div className="nutrition-item-emoji">{emoji}</div>
+      <div className="nutrition-item-emoji">{displayEmoji}</div>
       <div className="nutrition-item-content">
         <h4>
-          {name}
-          <span className="nutrition-item-category">{category}</span>
+          {displayName}
+          <span className="nutrition-item-category">{displayCategory}</span>
         </h4>
-        <p>{description}</p>
+        <p>{displayDescription}</p>
       </div>
       <span className="nutrition-item-arrow">→</span>
     </div>

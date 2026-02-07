@@ -5,14 +5,35 @@
  * Shows reminders with icons and timestamps
  */
 
-export default function ReminderCard({ reminders = [] }) {
+import { deleteReminder } from '../api';
+
+export default function ReminderCard({ reminders = [], onReminderDeleted }) {
   // Only show actual reminders, no defaults
   const displayReminders = reminders;
+
+  const handleDeleteReminder = async (reminderId, reminderTitle) => {
+    if (!window.confirm(`Delete "${reminderTitle}" reminder?`)) {
+      return;
+    }
+
+    try {
+      await deleteReminder(reminderId);
+      console.log('✅ Reminder deleted successfully');
+      
+      // Callback to refresh reminders list
+      if (onReminderDeleted) {
+        onReminderDeleted();
+      }
+    } catch (error) {
+      console.error('Error deleting reminder:', error);
+      alert('Failed to delete reminder. Please try again.');
+    }
+  };
 
   return (
     <div className="reminders-section">
       <div className="section-header">
-        <h2>Today's Reminders</h2>
+        <h2>Upcoming Reminders</h2>
         <span className="reminder-badge">{displayReminders.length}</span>
       </div>
 
@@ -25,14 +46,19 @@ export default function ReminderCard({ reminders = [] }) {
                 <h3>{reminder.title}</h3>
                 <p>{reminder.formattedDate || reminder.description}</p>
               </div>
-              <div className="reminder-action">
-                🔔
-              </div>
+              <button
+                className="reminder-delete-button"
+                onClick={() => handleDeleteReminder(reminder.id, reminder.title)}
+                title="Delete reminder"
+                aria-label="Delete reminder"
+              >
+                �️
+              </button>
             </div>
           ))
         ) : (
           <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-            <p>No reminders for today</p>
+            <p>No upcoming reminders</p>
           </div>
         )}
       </div>

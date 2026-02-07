@@ -2,21 +2,21 @@
  * HOME PAGE COMPONENT
  * ===================
  * Main dashboard/home page for NutriTrack app
- * Displays greeting, reminders, and daily tips
+ * Displays greeting, reminders, and notifications
  * Fully modular with reusable sub-components
  */
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GreetingCard from '../components/GreetingCard';
+import BabyProfileCard from '../components/BabyProfileCard';
 import ReminderCard from '../components/ReminderCard';
 import NotificationCard from '../components/NotificationCard';
 import NotificationBanner from '../components/NotificationBanner';
-import TipCard from '../components/TipCard';
 import BottomNavigation from '../components/BottomNavigation';
 import NotificationService from '../services/NotificationService';
 import { useBabyContext } from '../context/BabyContext';
-import { getReminders, getDailyTip, getCurrentUser, getAuthToken, getUserVaccineReminders, getBabies } from '../api';
+import { getReminders, getCurrentUser, getAuthToken, getUserVaccineReminders, getBabies } from '../api';
 import { isVaccineDueWithin } from '../utils/vaccineSchedule';
 import { calculateBabyAgeDetailed, getBabyAgeMonths } from '../utils/babyAge';
 import '../styles/Home.css';
@@ -26,13 +26,11 @@ const HOME_USER_TYPE = 'newParent';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { selectedBaby } = useBabyContext();
+  const { selectedBaby, refreshBabies } = useBabyContext();
   const storedUserType = localStorage.getItem('userType') || localStorage.getItem('selectedStage');
   
   // State for notification permission
   const [_notificationPermission, setNotificationPermission] = useState(false);
-  const [tip, setTip] = useState("Stay hydrated! Drink at least 8 glasses of water daily.");
-  const [tipError, setTipError] = useState(null);
   const [reminders, setReminders] = useState([]);
   const [_loading, setLoading] = useState(true);
   const [userData, setUserData] = useState({
@@ -52,6 +50,9 @@ export default function Home() {
 
   // Initialize notification service on component mount
   useEffect(() => {
+    // Refresh babies when Home page loads
+    refreshBabies();
+
     const initializeNotifications = async () => {
       const hasPermission = await NotificationService.initialize();
       setNotificationPermission(hasPermission);
@@ -178,21 +179,35 @@ export default function Home() {
           getUserVaccineReminders().catch(() => [])
         ]);
         
+        console.log('📅 Fetched general reminders:', remindersData);
+        console.log('💉 Fetched vaccine reminders:', vaccineRemindersData);
+        
         // Combine all reminders
         const allRemindersList = [
           ...remindersData,
           ...vaccineRemindersData
         ];
         
-        // Filter reminders to show only today's reminders
+        console.log('📋 All reminders combined:', allRemindersList);
+        
+        // Filter reminders to show upcoming reminders (today and next 14 days)
         const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
-        const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+        const futureDate = new Date(today);
+        futureDate.setDate(today.getDate() + 14); // Show reminders for next 14 days
+        
+        console.log('🗓️ Filtering reminders from', todayStart.toDateString(), 'to', futureDate.toDateString());
         
         const todayReminders = allRemindersList.filter(r => {
           const reminderDate = new Date(r.reminder_date);
-          return reminderDate >= todayStart && reminderDate <= todayEnd;
+          const isInRange = reminderDate >= todayStart && reminderDate <= futureDate;
+          if (!isInRange) {
+            console.log('⏭️ Skipping reminder (out of range):', r.title || r.vaccine_name, 'scheduled for', reminderDate.toDateString());
+          }
+          return isInRange;
         });
+        
+        console.log('✅ Filtered reminders:', todayReminders);
         
         // Deduplicate reminders by title to prevent showing the same reminder twice
         const reminderMap = new Map();
@@ -215,6 +230,11 @@ export default function Home() {
         
         const uniqueReminders = Array.from(reminderMap.values());
         
+        // Sort reminders by date (earliest first)
+        uniqueReminders.sort((a, b) => new Date(a.reminder_date) - new Date(b.reminder_date));
+        
+        console.log('🎯 Final reminders to display:', uniqueReminders);
+        
         setReminders(uniqueReminders.map(r => ({
           id: r.id,
           title: r.title || r.vaccine_name,
@@ -233,15 +253,6 @@ export default function Home() {
         // Keep empty array if fetch fails
       }
 
-      try {
-        // Fetch daily tip from backend
-        const tipData = await getDailyTip();
-        setTip(tipData.tip);
-      } catch (error) {
-        console.error('Error fetching daily tip:', error);
-        setTipError(error.message);
-      }
-      
       setLoading(false);
     };
 
@@ -272,6 +283,13 @@ export default function Home() {
           babyDob={userData.babyDob}
         />
 
+        {/* Baby Profile Card - Shows age graph and DOB */}
+        <BabyProfileCard
+          babyAgeLabel={userData.babyAgeLabel}
+          babyAgeMonths={userData.babyAgeMonths}
+          babyDob={userData.babyDob}
+        />
+
         {/* Vaccine Notifications - Shows alerts for vaccines due within 7 days */}
         <NotificationCard 
           vaccinesData={vaccinesData}
@@ -279,12 +297,12 @@ export default function Home() {
         />
 
         {/* Reminders Section */}
-        <ReminderCard reminders={reminders} />
-
-        {/* Daily Tip Section */}
-        <TipCard 
-          title="Today's Tip"
-          content={tipError ? `Tip unavailable: ${tipError}` : tip}
+        <ReminderCard 
+          reminders={reminders} 
+          onReminderDeleted={() => {
+            // Refresh reminders after deletion
+            window.location.reload();
+          }}
         />
       </div>
 

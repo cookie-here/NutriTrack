@@ -297,6 +297,32 @@
   transform: scale(1.1);
 }
 
+.reminder-delete-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+  min-width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.reminder-delete-button:hover {
+  opacity: 1;
+  background: rgba(255, 68, 68, 0.1);
+  transform: scale(1.1);
+}
+
+.reminder-delete-button:active {
+  transform: scale(0.95);
+}
+
 /* ===== QUICK ACCESS GRID ===== */
 .quick-access-section {
   display: flex;
@@ -660,5 +686,209 @@
 
 .baby-selector-dropdown option {
   background: var(--card-dark);
+  color: var(--text-main);
+}
+/* ===== BABY PROFILE CARD ===== */
+.baby-profile-card {
+  background: var(--card-dark);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.baby-profile-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  border-color: var(--border-strong);
+}
+
+.baby-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.baby-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(123, 224, 214, 0.3);
+}
+
+.baby-emoji {
+  font-size: 32px;
+}
+
+.baby-profile-info {
+  flex: 1;
+}
+
+.baby-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 4px 0;
+}
+
+.baby-age-text {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+  font-weight: 500;
+}
+
+.baby-age-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.age-info-badge {
+  background: rgba(123, 224, 214, 0.08);
+  border: 1px solid rgba(123, 224, 214, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.age-badge-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.age-badge-content {
+  flex: 1;
+}
+
+.age-badge-label {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.baby-age-progress {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 8px 12px;
+  background: rgba(123, 224, 214, 0.05);
+  border-radius: 10px;
+}
+
+.age-segment {
+  height: 8px;
+  border-radius: 6px;
+  background: rgba(123, 224, 214, 0.15);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.age-segment.active {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  box-shadow: 0 2px 8px rgba(123, 224, 214, 0.3);
+}
+
+.age-segment-label {
+  position: absolute;
+  bottom: -20px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 600;
+}
+
+.baby-progress-indicator {
+  position: absolute;
+  top: -4px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.baby-indicator-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff8fb1, #ff6b9d);
+  border: 3px solid var(--card-dark);
+  box-shadow: 0 2px 8px rgba(255, 143, 177, 0.5);
+  animation: pulse-baby 2s infinite;
+}
+
+@keyframes pulse-baby {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.baby-indicator-label {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-main);
+  background: rgba(123, 224, 214, 0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.baby-dob-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(192, 132, 252, 0.08);
+  border: 1px solid rgba(192, 132, 252, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.dob-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.dob-content {
+  flex: 1;
+}
+
+.dob-label {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dob-date {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-main);
 }

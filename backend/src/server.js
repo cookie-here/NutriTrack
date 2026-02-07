@@ -5,6 +5,7 @@ import { config } from './config/index.js';
 import { errorHandler } from './middleware/auth.js';
 import seedVaccines from './db/vaccineSeeds.js';
 import seedFeedings from './db/feedingSeeds.js';
+import seedFoods from './db/foodSeeds.js';
 
 // Import routes
 import authRoutes from './routes/authRoutes.js';
@@ -15,6 +16,7 @@ import vaccineRoutes from './routes/vaccineRoutes.js';
 import staticRoutes from './routes/staticRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import feedingRoutes from './routes/feedingRoutes.js';
+import foodRoutes from './routes/foodRoutes.js';
 
 const app = express();
 
@@ -32,6 +34,7 @@ app.use('/api/vaccines', vaccineRoutes);
 app.use('/api/static', staticRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/feedings', feedingRoutes);
+app.use('/api/foods', foodRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -77,6 +80,14 @@ const startServer = async () => {
       console.log('Feeding seeds loaded');
     } catch (err) {
       console.warn('Feeding seeds skipped or failed:', err.message);
+    }
+
+    // Seed foods
+    try {
+      await seedFoods();
+      console.log('Food seeds loaded');
+    } catch (err) {
+      console.warn('Food seeds skipped or failed:', err.message);
     }
 
     // Start server

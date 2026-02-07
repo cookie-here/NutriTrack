@@ -52,71 +52,42 @@ export default function GreetingCard({
         </button>
       </div>
       
-      <div className="trimester-info">
-        <div className="info-badge">
-          <span className="badge-icon">❤️</span>
-          <div className="badge-content">
-            {userType === 'pregnant' ? (
-              <>
-                <p className="badge-label">{trimester}</p>
-                <div className="trimester-progress">
-                  {TRIMESTER_SEGMENTS.map((seg, idx) => (
-                    <div
-                      key={seg.label}
-                      className={`trimester-segment ${idx <= activeTrimesterIndex ? 'active' : ''}`}
-                      style={{
-                        gridColumn: `${idx + 1} / span 1`
-                      }}
-                    >
-                      <span className="segment-label">{seg.label}</span>
-                    </div>
-                  ))}
-                  {progressPercent !== null && (
-                    <div
-                      className="progress-indicator"
-                      style={{ left: `${progressPercent}%` }}
-                    >
-                      <span className="indicator-dot" />
-                      <span className="indicator-label">{safeWeeks}w</span>
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="badge-label">Baby Age</p>
-                <div className="trimester-progress age-progress">
-                  {BABY_AGE_SEGMENTS.map((seg, idx) => (
-                    <div
-                      key={seg.label}
-                      className={`trimester-segment ${idx <= activeAgeIndex ? 'active' : ''}`}
-                      style={{ gridColumn: `${idx + 1} / span 1` }}
-                    >
-                      <span className="segment-label">{seg.label}</span>
-                    </div>
-                  ))}
-                  {babyProgressPercent !== null && (
-                    <div
-                      className="progress-indicator"
-                      style={{ left: `${babyProgressPercent}%` }}
-                    >
-                      <span className="indicator-dot" />
-                      <span className="indicator-label">{babyAgeLabel}</span>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+      {/* Show trimester info only for pregnant users */}
+      {userType === 'pregnant' && (
+        <div className="trimester-info">
+          <div className="info-badge">
+            <span className="badge-icon">❤️</span>
+            <div className="badge-content">
+              <p className="badge-label">{trimester}</p>
+              <div className="trimester-progress">
+                {TRIMESTER_SEGMENTS.map((seg, idx) => (
+                  <div
+                    key={seg.label}
+                    className={`trimester-segment ${idx <= activeTrimesterIndex ? 'active' : ''}`}
+                    style={{
+                      gridColumn: `${idx + 1} / span 1`
+                    }}
+                  >
+                    <span className="segment-label">{seg.label}</span>
+                  </div>
+                ))}
+                {progressPercent !== null && (
+                  <div
+                    className="progress-indicator"
+                    style={{ left: `${progressPercent}%` }}
+                  >
+                    <span className="indicator-dot" />
+                    <span className="indicator-label">{safeWeeks}w</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="due-date">
+            <p>Due Date: <strong>{formatDate(dueDate)}</strong></p>
           </div>
         </div>
-        <div className="due-date">
-          {userType === 'pregnant' ? (
-            <p>Due Date: <strong>{formatDate(dueDate)}</strong></p>
-          ) : (
-            <p>Baby DOB: <strong>{formatDate(babyDob || dueDate)}</strong></p>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

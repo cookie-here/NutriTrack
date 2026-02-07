@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import NutritionHeader from '../components/NutritionHeader';
 import NutritionCard from '../components/NutritionCard';
 import BottomNavigation from '../components/BottomNavigation';
-import { getNutritionTips, getSafeFoods, getCurrentUser } from '../api';
+import { getPregnancyFoods, getNutritionTips, getSafeFoods, getCurrentUser } from '../api';
 import '../styles/Nutrition.css';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -46,19 +46,29 @@ export default function PregnantNutrition() {
   const [safeFoods, setSafeFoods] = useState({ safe: [], unsafe: [] });
   const [loading, setLoading] = useState(true);
   const [currentTrimester, setCurrentTrimester] = useState('Unknown');
+  const [foodItems, setFoodItems] = useState({ recommended: [], avoid: [] });
 
   // Fetch nutrition data on mount
   useEffect(() => {
     const fetchNutritionData = async () => {
       try {
-        const [tipsData, foodsData, user] = await Promise.all([
+        const [tipsData, foodsData, foodItemsData, user] = await Promise.all([
           getNutritionTips(),
           getSafeFoods(),
+          getPregnancyFoods(),
           getCurrentUser().catch(() => null)
         ]);
         
         setNutritionTips(tipsData.tips || []);
         setSafeFoods(foodsData);
+        
+        // Set food items from API, fallback to empty arrays if not available
+        if (foodItemsData) {
+          setFoodItems({
+            recommended: foodItemsData.recommended || [],
+            avoid: foodItemsData.avoid || []
+          });
+        }
 
         if (user) {
           const { trimester } = calculateTrimester(user.due_date);
@@ -66,6 +76,7 @@ export default function PregnantNutrition() {
         }
       } catch (error) {
         console.error('Error fetching nutrition data:', error);
+        // Continue with empty state if API fails
       } finally {
         setLoading(false);
       }
@@ -77,108 +88,8 @@ export default function PregnantNutrition() {
   // Pregnancy-specific nutrition data
   const pregnancyNutritionData = {
     trimester: currentTrimester,
-    recommended: [
-      {
-        id: 1,
-        name: "Leafy Greens",
-        emoji: "🥬",
-        category: "Vegetables",
-        description: "Rich in folate - essential for baby's development"
-      },
-      {
-        id: 2,
-        name: "Salmon",
-        emoji: "🐟",
-        category: "Protein",
-        description: "Omega-3 fatty acids for baby's brain development"
-      },
-      {
-        id: 3,
-        name: "Greek Yogurt",
-        emoji: "🥛",
-        category: "Dairy",
-        description: "Calcium for bones and teeth"
-      },
-      {
-        id: 4,
-        name: "Eggs",
-        emoji: "🥚",
-        category: "Protein",
-        description: "Complete protein with choline for brain development"
-      },
-      {
-        id: 5,
-        name: "Sweet Potatoes",
-        emoji: "🍠",
-        category: "Vegetables",
-        description: "Vitamin A and fiber for healthy digestion"
-      },
-      {
-        id: 6,
-        name: "Berries",
-        emoji: "🫐",
-        category: "Fruits",
-        description: "Antioxidants and vitamin C"
-      },
-      {
-        id: 7,
-        name: "Almonds",
-        emoji: "🌰",
-        category: "Nuts",
-        description: "Folate, fiber, and protein"
-      },
-      {
-        id: 8,
-        name: "Lentils",
-        emoji: "🫘",
-        category: "Legumes",
-        description: "Iron and plant-based protein"
-      }
-    ],
-    avoid: [
-      {
-        id: 9,
-        name: "Raw Fish",
-        emoji: "🍣",
-        category: "Risk",
-        description: "Risk of harmful bacteria like Listeria"
-      },
-      {
-        id: 10,
-        name: "Unpasteurized Dairy",
-        emoji: "🥛",
-        category: "Risk",
-        description: "Can contain Listeria bacteria"
-      },
-      {
-        id: 11,
-        name: "High Mercury Fish",
-        emoji: "🐟",
-        category: "Risk",
-        description: "Shark, swordfish, and king mackerel"
-      },
-      {
-        id: 12,
-        name: "Raw Meat",
-        emoji: "🥩",
-        category: "Risk",
-        description: "Risk of toxoplasmosis and other infections"
-      },
-      {
-        id: 13,
-        name: "Caffeine (Excess)",
-        emoji: "☕",
-        category: "Risk",
-        description: "Limit to less than 200mg daily"
-      },
-      {
-        id: 14,
-        name: "Unwashed Vegetables",
-        emoji: "🥒",
-        category: "Risk",
-        description: "Wash all produce thoroughly"
-      }
-    ]
+    recommended: foodItems.recommended,
+    avoid: foodItems.avoid
   };
 
   if (loading) {

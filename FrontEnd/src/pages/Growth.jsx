@@ -206,23 +206,47 @@ export default function Growth() {
     ));
   };
 
+  const [chartMetric, setChartMetric] = useState('weight');
+
   // Calculate growth chart data
-  const chartBars = growthRecords
+  const chartPoints = growthRecords
     .slice()
     .reverse()
     .map((record) => ({
       date: new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       weight: record.weight_kg,
       height: record.height_cm,
+      head: record.head_circumference_cm,
     }));
 
-  const maxWeight = chartBars.length > 0 ? Math.max(...chartBars.map(b => b.weight)) : 0;
+  const metricConfig = {
+    weight: { label: 'Weight', unit: 'kg', icon: '⚖️' },
+    height: { label: 'Height', unit: 'cm', icon: '📏' },
+    head: { label: 'Head Circumference', unit: 'cm', icon: '🧠' },
+  };
 
-  const getChartBars = () => {
-    return chartBars.map(bar => ({
-      ...bar,
-      heightPercent: maxWeight > 0 ? (bar.weight / maxWeight) * 100 : 0,
-    }));
+  const metric = metricConfig[chartMetric];
+  const chartValues = chartPoints
+    .map(point => ({ ...point, value: point[chartMetric] }))
+    .filter(point => point.value !== null && point.value !== undefined);
+
+  const chartMin = chartValues.length > 0 ? Math.min(...chartValues.map(p => p.value)) : 0;
+  const chartMax = chartValues.length > 0 ? Math.max(...chartValues.map(p => p.value)) : 0;
+  const chartRange = chartMax - chartMin || 1;
+
+  const buildLinePath = () => {
+    if (chartValues.length === 0) return '';
+    const width = 300;
+    const height = 140;
+    const padding = 12;
+    const stepX = (width - padding * 2) / Math.max(chartValues.length - 1, 1);
+    return chartValues
+      .map((point, index) => {
+        const x = padding + index * stepX;
+        const y = height - padding - ((point.value - chartMin) / chartRange) * (height - padding * 2);
+        return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
+      })
+      .join(' ');
   };
 
   if (loading) {
@@ -357,20 +381,58 @@ export default function Growth() {
 
                 {/* Growth Chart */}
                 <div className="growth-chart-card">
-                  <h3>📊 Weekly Weight Progress</h3>
-                  {chartBars.length > 0 ? (
-                    <div className="growth-chart-container">
-                      {getChartBars().map((bar, idx) => (
-                        <div key={idx} className="growth-chart-bar">
-                          <div
-                            className="growth-bar"
-                            style={{ height: `${Math.max(bar.heightPercent * 2, 20)}px` }}
-                            title={`${bar.weight}kg`}
-                          />
-                          <div className="growth-bar-label">{bar.date}</div>
-                          <div className="growth-bar-value">{bar.weight}kg</div>
-                        </div>
-                      ))}
+                  <div className="growth-chart-header">
+                    <h3>{metric.icon} {metric.label} Progress</h3>
+                    <div className="growth-metric-toggle">
+                      <button
+                        className={`metric-btn ${chartMetric === 'weight' ? 'active' : ''}`}
+                        onClick={() => setChartMetric('weight')}
+                      >
+                        Weight
+                      </button>
+                      <button
+                        className={`metric-btn ${chartMetric === 'height' ? 'active' : ''}`}
+                        onClick={() => setChartMetric('height')}
+                      >
+                        Height
+                      </button>
+                      <button
+                        className={`metric-btn ${chartMetric === 'head' ? 'active' : ''}`}
+                        onClick={() => setChartMetric('head')}
+                      >
+                        Head
+                      </button>
+                    </div>
+                  </div>
+                  {chartValues.length > 0 ? (
+                    <div className="growth-line-chart">
+                      <svg viewBox="0 0 300 140" className="growth-line-svg" role="img" aria-label={`${metric.label} trend`}>
+                        <path className="growth-line" d={buildLinePath()} />
+                        {chartValues.map((point, index) => {
+                          const width = 300;
+                          const height = 140;
+                          const padding = 12;
+                          const stepX = (width - padding * 2) / Math.max(chartValues.length - 1, 1);
+                          const x = padding + index * stepX;
+                          const y = height - padding - ((point.value - chartMin) / chartRange) * (height - padding * 2);
+                          return (
+                            <circle
+                              key={`${point.date}-${index}`}
+                              className="growth-line-point"
+                              cx={x}
+                              cy={y}
+                              r="3"
+                            />
+                          );
+                        })}
+                      </svg>
+                      <div className="growth-line-meta">
+                        <span>{chartValues[0].date}</span>
+                        <span>{chartValues[chartValues.length - 1].date}</span>
+                      </div>
+                      <div className="growth-line-value">
+                        Latest: {chartValues[chartValues.length - 1].value} {metric.unit}
+                      </div>
                     </div>
                   ) : (
                     <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>

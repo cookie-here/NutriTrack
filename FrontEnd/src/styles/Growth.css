@@ -206,62 +206,77 @@
   margin: 0 0 16px 0;
 }
 
-.growth-chart-container {
+.growth-chart-header {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  height: 200px;
-  gap: 8px;
-  padding: 16px 8px;
-  background: rgba(168, 85, 247, 0.08);
-  border-radius: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.growth-chart-bar {
+.growth-metric-toggle {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.metric-btn {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.metric-btn.active {
+  background: var(--growth-purple);
+  color: var(--white);
+  border-color: var(--growth-purple);
+}
+
+.growth-line-chart {
+  background: rgba(168, 85, 247, 0.08);
+  border-radius: 10px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 8px;
 }
 
-.growth-bar {
-  width: 30px;
-  background: linear-gradient(180deg, #a855f7 0%, #7c3aed 100%);
-  border-radius: 4px 4px 0 0;
-  transition: all 0.3s ease;
+.growth-line-svg {
+  width: 100%;
+  height: 140px;
 }
 
-.growth-bar:hover {
-  opacity: 0.8;
+.growth-line {
+  fill: none;
+  stroke: #a855f7;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.growth-bar-label {
+.growth-line-point {
+  fill: #a855f7;
+  stroke: rgba(255, 255, 255, 0.8);
+  stroke-width: 1;
+}
+
+.growth-line-meta {
+  display: flex;
+  justify-content: space-between;
   font-size: 11px;
   color: var(--text-muted);
-  text-align: center;
 }
 
-.growth-chart-legend {
-  display: flex;
-  gap: 16px;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-  justify-content: center;
+.growth-line-value {
   font-size: 12px;
-}
-
-.growth-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-muted);
-}
-
-.growth-legend-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  color: var(--text-main);
+  font-weight: 600;
 }
 
 /* ===== MILESTONE CARD ===== */

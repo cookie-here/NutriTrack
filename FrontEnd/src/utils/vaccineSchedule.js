@@ -132,6 +132,9 @@ export const getNextDoseDate = (vaccineName, currentDoseNumber, lastDoseDateStri
   const weeksToAdd = nextDoseInfo.ageMonths * 4.33; // Convert months to weeks
   nextDate.setDate(nextDate.getDate() + (weeksToAdd * 7));
   
+  // Set reminder date to 1 week (7 days) before the actual vaccine due date
+  nextDate.setDate(nextDate.getDate() - 7);
+  
   // Return as YYYY-MM-DD string
   return `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}-${String(nextDate.getDate()).padStart(2, '0')}`;
 };
@@ -222,9 +225,13 @@ export const generateAutomaticVaccineReminders = (allVaccines, birthDateString, 
 
     // Create reminder for each dose
     schedule.spacing.forEach(doseTiming => {
-      const reminderDate = calculateVaccineDateFromBirth(birthDateString, doseTiming.ageMonths);
+      const vaccineDueDate = calculateVaccineDateFromBirth(birthDateString, doseTiming.ageMonths);
       
-      if (reminderDate) {
+      if (vaccineDueDate) {
+        // Set reminder date to 1 week (7 days) before the actual vaccine due date
+        const reminderDate = new Date(vaccineDueDate);
+        reminderDate.setDate(reminderDate.getDate() - 7);
+        
         // Convert Date to YYYY-MM-DD string (no timezone shift)
         const dateString = `${reminderDate.getFullYear()}-${String(reminderDate.getMonth() + 1).padStart(2, '0')}-${String(reminderDate.getDate()).padStart(2, '0')}`;
         

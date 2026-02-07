@@ -315,10 +315,10 @@ export default function Vaccines() {
           );
 
           if (nextDoseDate) {
-            // Create next dose reminder
+            // Create next dose reminder (nextDoseDate is already a YYYY-MM-DD string)
             const nextDoseReminder = {
               vaccine_name: vaccineToMark.vaccine_name,
-              reminder_date: nextDoseDate.toISOString(),
+              reminder_date: nextDoseDate,
               dose_number: currentDose + 1,
               total_doses: totalDoses,
               recipient: vaccineToMark.recipient,
@@ -334,7 +334,7 @@ export default function Vaccines() {
               NotificationService.sendNotification(
                 `${vaccineToMark.vaccine_name} - Dose ${currentDose + 1} Scheduled`,
                 {
-                  body: `Next dose scheduled for ${nextDoseDate.toDateString()}`,
+                  body: `Reminder set for ${nextDoseDate}`,
                   tag: `vaccine-next-dose-${vaccineToMark.vaccine_name}-${currentDose + 1}`,
                 }
               );

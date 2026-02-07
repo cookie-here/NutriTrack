@@ -7,6 +7,8 @@ if (import.meta.env.DEV) {
 
 async function request(path, options = {}) {
   const url = `${API_URL}${path}`;
+  const suppressError = options.suppressError || false;
+  delete options.suppressError;
   
   // Add auth token to headers if available
   const token = getAuthToken();
@@ -33,10 +35,16 @@ async function request(path, options = {}) {
       try {
         const data = await res.json();
         detail = data.detail || detail;
-      } catch (_) {
+      } catch {
         // ignore json parse errors
         detail = `HTTP ${res.status}: ${res.statusText}`;
       }
+      
+      // Suppress console error for 401s on optional calls
+      if (res.status === 401 && suppressError) {
+        throw new Error(detail);
+      }
+      
       throw new Error(detail);
     }
 
@@ -67,8 +75,13 @@ export async function login({ email, password }) {
 }
 
 export async function getCurrentUser() {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('No authentication token. User not logged in.');
+  }
   return request('/api/auth/me', {
     method: 'GET',
+    suppressError: true
   });
 }
 
@@ -303,6 +316,45 @@ export async function deleteVaccineReminder(reminderId) {
   });
 }
 
+// ===== Food Items =====
+export async function getAllFoods() {
+  return request('/api/foods/all');
+}
+
+export async function getPregnancyFoods() {
+  return request('/api/foods/pregnancy');
+}
+
+export async function getFoodsByType(type) {
+  return request(`/api/foods/type/${type}`);
+}
+
+export async function getFoodsByCategory(category) {
+  return request(`/api/foods/category/${category}`);
+}
+
+export async function createFood(foodData) {
+  return request('/api/foods/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(foodData),
+  });
+}
+
+export async function updateFood(foodId, foodData) {
+  return request(`/api/foods/update/${foodId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(foodData),
+  });
+}
+
+export async function deleteFood(foodId) {
+  return request(`/api/foods/delete/${foodId}`, {
+    method: 'DELETE',
+  });
+}
+
 // ===== Auth Token Management =====
 export function setAuthToken(token) {
   if (!token) return;
@@ -315,5 +367,9 @@ export function getAuthToken() {
 
 export function clearAuthToken() {
   localStorage.removeItem('auth_token');
+  // Also clear baby-related data when logging out
+  localStorage.removeItem('selectedBabyId');
+  localStorage.removeItem('userType');
+  localStorage.removeItem('selectedStage');
 }
 
