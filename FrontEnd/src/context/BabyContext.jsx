@@ -16,6 +16,56 @@ export const BabyProvider = ({ children }) => {
   const [selectedBaby, setSelectedBaby] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Listen for logout event to clear baby data
+  useEffect(() => {
+    const handleLogout = () => {
+      setBabies([]);
+      setSelectedBaby(null);
+      localStorage.removeItem('selectedBabyId');
+    };
+
+    window.addEventListener('logout', handleLogout);
+    return () => window.removeEventListener('logout', handleLogout);
+  }, []);
+
+  // Listen for login event to refetch babies
+  useEffect(() => {
+    const handleLogin = async () => {
+      // Small delay to ensure auth token is set
+      setTimeout(async () => {
+        const token = getAuthToken();
+        if (token) {
+          try {
+            const babiesData = await getBabies().catch((error) => {
+              console.error('Error fetching babies after login:', error);
+              return [];
+            });
+            
+            if (babiesData && babiesData.length > 0) {
+              setBabies(babiesData);
+              
+              // Select first active or first baby
+              const activeBaby = babiesData.find(b => b.is_active) || babiesData[0];
+              setSelectedBaby(activeBaby);
+              if (activeBaby) {
+                localStorage.setItem('selectedBabyId', activeBaby.id);
+              }
+            } else {
+              setBabies([]);
+              setSelectedBaby(null);
+              localStorage.removeItem('selectedBabyId');
+            }
+          } catch (error) {
+            console.error('Error in login handler:', error);
+          }
+        }
+      }, 100);
+    };
+
+    window.addEventListener('login', handleLogin);
+    return () => window.removeEventListener('login', handleLogin);
+  }, []);
+
   // Fetch babies whenever auth token changes
   useEffect(() => {
     let isMounted = true;
@@ -86,14 +136,20 @@ export const BabyProvider = ({ children }) => {
       
       // Listen for storage changes (e.g., logout in another tab)
       const handleStorageChange = (e) => {
-        if (e.key === 'auth_token' && !e.newValue) {
-          // Auth token was removed - clear baby data
-          setBabies([]);
-          setSelectedBaby(null);
-          localStorage.removeItem('selectedBabyId');
-        } else if (e.key === 'auth_token' && e.newValue && e.newValue !== token) {
-          // Auth token changed - refetch babies
-          fetchBabies();
+        if (e.key === 'auth_token') {
+          if (!e.newValue) {
+            // Auth token was removed - clear baby data
+            if (isMounted) {
+              setBabies([]);
+              setSelectedBaby(null);
+              localStorage.removeItem('selectedBabyId');
+            }
+          } else {
+            // Auth token changed (new user logged in) - refetch babies
+            if (isMounted) {
+              fetchBabies();
+            }
+          }
         }
       };
       

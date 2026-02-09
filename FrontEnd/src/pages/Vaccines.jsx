@@ -286,6 +286,19 @@ export default function Vaccines() {
       const vaccineToMark = userReminders.find(v => v.id === id);
       if (!vaccineToMark) return;
 
+      // OPTIMISTIC UPDATE: Update local state immediately for instant UI feedback
+      // This fixes the mobile app delay issue where UI wouldn't update until navigating away
+      const updatedReminders = userReminders.map(reminder => 
+        reminder.id === id 
+          ? { 
+              ...reminder, 
+              status: 'completed',
+              last_dose_date: new Date().toISOString().split('T')[0]
+            }
+          : reminder
+      );
+      setUserReminders(updatedReminders);
+
       // Step 1: Mark current dose as completed on backend
       await updateVaccineReminderStatus(id, {
         status: 'completed',
@@ -310,7 +323,7 @@ export default function Vaccines() {
 
       if (currentDose < totalDoses) {
         // Check if next dose already exists
-        const nextDoseExists = userReminders.some(
+        const nextDoseExists = updatedReminders.some(
           r => r.vaccine_name === vaccineToMark.vaccine_name && 
                r.dose_number === currentDose + 1 &&
                (r.baby_id || null) === (selectedBaby?.id || null)
@@ -339,7 +352,10 @@ export default function Vaccines() {
               baby_id: selectedBaby?.id || null,
             };
 
-            await createVaccineReminder(nextDoseReminder);
+            const newDose = await createVaccineReminder(nextDoseReminder);
+            
+            // Update state with the new dose
+            setUserReminders(prev => [...prev, newDose]);
 
             // Notify about next dose
             if (Notification.permission === 'granted') {
@@ -355,11 +371,19 @@ export default function Vaccines() {
         }
       }
 
-      // Step 3: Refresh all vaccine reminders from server to ensure UI is up to date
+      // Step 3: Refresh all vaccine reminders from server to sync with backend
+      // This ensures we have the latest state and handles any edge cases
       const refreshedReminders = await getUserVaccineReminders(selectedBaby?.id);
       setUserReminders(refreshedReminders || []);
     } catch (error) {
       console.error('Error marking vaccine as done:', error);
+      // Refresh state from server if error occurs to ensure consistency
+      try {
+        const refreshedReminders = await getUserVaccineReminders(selectedBaby?.id);
+        setUserReminders(refreshedReminders || []);
+      } catch (refreshError) {
+        console.error('Error refreshing vaccine reminders after failure:', refreshError);
+      }
     }
   };
 

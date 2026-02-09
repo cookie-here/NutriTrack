@@ -360,6 +360,9 @@ export async function deleteFood(foodId) {
 export function setAuthToken(token) {
   if (!token) return;
   localStorage.setItem('auth_token', token);
+  
+  // Dispatch custom event to notify BabyContext to refetch babies for new user
+  window.dispatchEvent(new Event('login'));
 }
 
 export function getAuthToken() {
@@ -368,9 +371,11 @@ export function getAuthToken() {
 
 export function clearAuthToken() {
   localStorage.removeItem('auth_token');
-  // Also clear baby-related data when logging out
   localStorage.removeItem('selectedBabyId');
   localStorage.removeItem('userType');
   localStorage.removeItem('selectedStage');
+  
+  // Dispatch custom event to notify BabyContext to clear state
+  window.dispatchEvent(new Event('logout'));
 }
 

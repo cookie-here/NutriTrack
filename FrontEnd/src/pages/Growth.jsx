@@ -349,6 +349,12 @@ export default function Growth() {
           <div className="tracking-section">
             <div className="section-header">
               <h2>📈 Growth Tracking: {selectedBaby.name}</h2>
+              <button 
+                className="add-button"
+                onClick={() => setShowGrowthInput(!showGrowthInput)}
+              >
+                {showGrowthInput ? '✕ Cancel' : '+ Record Measurement'}
+              </button>
             </div>
 
             {showGrowthInput && (
