@@ -42,6 +42,67 @@ flowchart LR
 - Routes map endpoints to controllers and apply auth middleware.
 - Example groups: `/api/auth`, `/api/babies`, `/api/growth`, `/api/reminders`, `/api/vaccines`, `/api/static`, `/api/profile`.
 
+### Backend Route Map (API)
+All API routes are mounted under the `/api` prefix in [backend/src/server.js](backend/src/server.js).
+
+Auth
+- `POST /api/auth/register` create user
+- `POST /api/auth/login` login and return JWT
+- `GET /api/auth/me` current user (auth required)
+
+Babies
+- `GET /api/babies` list active babies
+- `POST /api/babies` create baby
+- `GET /api/babies/:babyId` get baby + growth records
+- `PUT /api/babies/:babyId` update baby
+- `DELETE /api/babies/:babyId` soft delete baby
+- `GET /api/babies/:babyId/growth` growth records for baby
+
+Growth
+- `GET /api/growth/records` list growth records (auth required)
+- `POST /api/growth/records` create growth record
+- `GET /api/growth/records/:recordId` get record
+- `PUT /api/growth/records/:recordId` update record
+- `DELETE /api/growth/records/:recordId` delete record
+
+Reminders
+- `GET /api/reminders` list reminders
+- `POST /api/reminders` create reminder
+- `PATCH /api/reminders/:reminderId/complete` mark complete
+- `DELETE /api/reminders/:reminderId` delete reminder
+
+Vaccines
+- `GET /api/vaccines` list vaccines
+- `GET /api/vaccines/mother` list vaccines for pregnant users
+- `GET /api/vaccines/:vaccineId` get vaccine by id
+- `GET /api/vaccines/reminders/user` list user vaccine reminders
+- `POST /api/vaccines/reminders` create vaccine reminder
+- `POST /api/vaccines/reminders/cleanup` cleanup duplicates
+- `PATCH /api/vaccines/reminders/:reminderId/status` update reminder status
+- `DELETE /api/vaccines/reminders/:reminderId` delete reminder
+
+Static Content
+- `GET /api/static/daily-tip`
+- `GET /api/static/nutrition-tips`
+- `GET /api/static/feeding-guide`
+- `GET /api/static/safe-foods`
+- `GET /api/static/vaccine-schedule`
+
+Profile
+- `GET /api/profile` get user profile
+- `PUT /api/profile` update profile
+- `POST /api/profile/emergency-contact` save contact
+- `GET /api/profile/emergency-contact` get contact
+- `DELETE /api/profile/emergency-contact` delete contact
+- `POST /api/profile/partner-invite` send invite
+- `GET /api/profile/partner-invitations` list invites
+- `PATCH /api/profile/partner-invitations/:invitationId/accept` accept invite
+- `PATCH /api/profile/partner-invitations/:invitationId/decline` decline invite
+
+Feeding
+- `GET /api/feedings` list feeding guide entries (by age filter)
+- `GET /api/feedings/:feedingId` get feeding entry
+
 ### Authentication and Security
 - Password strength is validated server-side before account creation.
 - Passwords are hashed with bcrypt and stored as `hashed_password`.
@@ -53,6 +114,51 @@ flowchart LR
 - Login and Signup handle authentication flows.
 - Growth page handles baby list, growth records, charts, and milestones.
 - Add Baby is a dedicated page for creating new baby profiles.
+
+### Frontend Route Map (UI)
+Routes are defined in [FrontEnd/src/App.jsx](FrontEnd/src/App.jsx).
+
+Public and onboarding
+- `/onboarding` first-time onboarding
+- `/welcome` stage selection
+- `/login` sign in
+- `/signup` create account
+
+New parent flow
+- `/home` dashboard
+- `/add-baby` add baby form
+- `/nutrition` nutrition tips
+- `/vaccines` vaccines info
+- `/feeding` feeding guides
+- `/growth` growth tracking
+- `/profile` user profile
+
+Pregnant flow
+- `/pregnant/home` pregnant dashboard
+- `/pregnant/nutrition` nutrition tips for pregnancy
+- `/pregnant/vaccines` vaccines and health for pregnancy
+
+Redirects
+- `/` and any unknown path redirect to `/onboarding`
+
+### UI Structure (Frontend)
+Root composition
+- [FrontEnd/src/main.jsx](FrontEnd/src/main.jsx) wraps the app with `ThemeProvider` and renders `App`.
+- [FrontEnd/src/App.jsx](FrontEnd/src/App.jsx) wraps routes in `BabyProvider` and `Router`.
+
+Page-level composition (high level)
+- Login: Auth header/footer + reusable inputs + submit button.
+- Signup: Auth header/footer + inputs + password strength + user type selector + date input.
+- Growth: header + tabs + baby list cards + baby form + growth input + charts + records table.
+- Add Baby: page shell + BabyForm.
+- Home/Pregnant Home: dashboard pages with navigation and content sections.
+- Nutrition/Vaccines/Feeding: content pages consuming static API data.
+- Profile: user profile and emergency contact management.
+
+Key reusable UI components
+- Auth: `AuthHeader`, `AuthFooter`, `FormInput`, `ErrorMessage`, `SubmitButton`.
+- Baby/Growth: `BabyCard`, `BabyForm`, `GrowthInput`, `GrowthHeader`, `MilestoneCard`.
+- Navigation: `BottomNavigation` on main flows.
 
 ### State Management
 - `BabyContext` loads babies on app start (if token exists).
