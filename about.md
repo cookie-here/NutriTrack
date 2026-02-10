@@ -197,6 +197,44 @@ Key reusable UI components
 3. Backend writes GrowthRecord and returns updated data.
 4. Growth page updates charts and tables.
 
+## Visual Workflow (User Journey)
+```mermaid
+flowchart LR
+  classDef entry fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px,color:#1b5e20
+  classDef auth fill:#e3f2fd,stroke:#1565c0,stroke-width:1px,color:#0d47a1
+  classDef decision fill:#fff8e1,stroke:#f57f17,stroke-width:1px,color:#6d4c41
+  classDef parent fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c
+  classDef preg fill:#fff3e0,stroke:#ef6c00,stroke-width:1px,color:#e65100
+  classDef shared fill:#eceff1,stroke:#546e7a,stroke-width:1px,color:#263238
+
+  Start([Open App]):::entry --> Onboarding[Onboarding]:::entry --> Stage[Stage Select]:::entry
+
+  Stage -->|New user| Signup[Signup]:::auth --> Login[Login]:::auth
+  Stage -->|Has account| Login
+
+  Login --> Auth{User Type?}:::decision
+
+  subgraph Parent[New Parent Flow]
+    direction TB
+    ParentHome[Home]:::parent --> AddBaby[Add Baby]:::parent
+    ParentHome --> Growth[Growth Tracking]:::parent
+    ParentHome --> Nutrition[Nutrition]:::parent
+    ParentHome --> Vaccines[Vaccines]:::parent
+    ParentHome --> Feeding[Feeding]:::parent
+    ParentHome --> Profile[Profile]:::shared
+  end
+
+  subgraph Preg[Pregnant Flow]
+    direction TB
+    PregHome[Pregnant Home]:::preg --> PregNutrition[Pregnant Nutrition]:::preg
+    PregHome --> PregVaccines[Pregnant Vaccines]:::preg
+    PregHome --> Profile
+  end
+
+  Auth -->|newParent| ParentHome
+  Auth -->|pregnant| PregHome
+```
+
 ## Visual Sequence Example (Login)
 ```mermaid
 sequenceDiagram
