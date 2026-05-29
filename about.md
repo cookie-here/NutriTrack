@@ -1,271 +1,261 @@
-# NutriTrack Project Overview (Detailed)
+# NutriTrack Overview
 
-NutriTrack is a full-stack web and mobile-friendly app that helps users manage pregnancy and baby care. It provides secure authentication, baby profiles, growth tracking, guidance content, reminders, and vaccines. The system is split into a backend REST API (Node.js + Express + Sequelize) and a frontend app (React + Vite), connected via JSON over HTTP with JWT-based authentication.
+NutriTrack is a full-stack health tracking application for expecting parents and families with young children. It combines a React frontend, a Node.js and Express backend, and Sequelize-powered persistence to manage onboarding, authentication, baby profiles, feeding guidance, growth tracking, vaccine reminders, and profile coordination in one workflow.
 
-## Purpose and Scope
-- Support new and expecting parents with baby profile management and weekly growth tracking.
-- Provide structured guidance content (nutrition, feeding, vaccines).
-- Keep data secure with password hashing and token-based access control.
+## Product Scope
+- Support two primary journeys: pregnant users and new parents.
+- Centralize child health workflows such as growth, feeding, vaccines, reminders, and profile management.
+- Keep authentication and data access consistent through JWT-based authorization.
 
-## Tech Stack
-- Frontend: React, Vite, React Router, custom hooks, context state.
+## Technology Stack
+- Frontend: React, Vite, React Router, context state, reusable form components.
 - Backend: Node.js, Express, Sequelize ORM.
-- Database: SQLite by default; MySQL supported through `DATABASE_URL`.
-- Auth: bcrypt password hashing + JWT access tokens.
+- Database: SQLite by default, MySQL through `DATABASE_URL`.
+- Authentication: bcrypt password hashing and JWT access tokens.
 
-## Architecture Overview
-The frontend renders UI and calls backend endpoints through a centralized API client. The backend exposes REST endpoints, validates auth tokens, and uses Sequelize models to read/write the database. Static datasets (vaccines and feeding guides) are seeded on startup.
+## System Architecture
+The frontend renders routes and page-level UI, then talks to the backend through a single API layer. The backend validates requests, applies auth middleware, executes business logic in controllers, and persists data through Sequelize models. Static health content and schedule data are served through dedicated endpoints and seeded datasets.
 
-## Visual Representation
 ```mermaid
 flowchart LR
-  UI[Frontend React App] -->|REST JSON| API[Express API]
-  API -->|Sequelize| DB[(SQLite/MySQL)]
-  API --> Seeds[Static Seeds: Vaccines/Feeding]
-  UI --> Local[LocalStorage: auth_token, userType, selectedBabyId]
+  UI[React Frontend] -->|REST JSON| API[Express API]
+  API -->|Sequelize| DB[(SQLite / MySQL)]
+  API --> Static[Static Content and Seeds]
+  UI --> Local[LocalStorage: token, userType, selectedBabyId]
 ```
 
-## Backend (How It Works)
-### Database Connection and Sync
-- DB connection is created on server startup.
-- Sequelize authenticates and syncs models with `alter: true` to keep tables updated.
-- SQLite foreign keys are temporarily disabled during sync, then re-enabled.
-
-### Models and Relationships
-- `User` stores account data and auth fields.
-- `Baby` stores baby profile data and belongs to a user.
-- `GrowthRecord` stores measurement data and links to both user and baby.
-- Relationships: User has many Babies; Baby has many GrowthRecords; GrowthRecord belongs to User and Baby.
-
-### Controllers and Routes
-- Controllers implement business logic (create, read, update, delete).
-- Routes map endpoints to controllers and apply auth middleware.
-- Example groups: `/api/auth`, `/api/babies`, `/api/growth`, `/api/reminders`, `/api/vaccines`, `/api/static`, `/api/profile`.
-
-### Backend Route Map (API)
-All API routes are mounted under the `/api` prefix in [backend/src/server.js](backend/src/server.js).
-
-Auth
-- `POST /api/auth/register` create user
-- `POST /api/auth/login` login and return JWT
-- `GET /api/auth/me` current user (auth required)
-
-Babies
-- `GET /api/babies` list active babies
-- `POST /api/babies` create baby
-- `GET /api/babies/:babyId` get baby + growth records
-- `PUT /api/babies/:babyId` update baby
-- `DELETE /api/babies/:babyId` soft delete baby
-- `GET /api/babies/:babyId/growth` growth records for baby
-
-Growth
-- `GET /api/growth/records` list growth records (auth required)
-- `POST /api/growth/records` create growth record
-- `GET /api/growth/records/:recordId` get record
-- `PUT /api/growth/records/:recordId` update record
-- `DELETE /api/growth/records/:recordId` delete record
-
-Reminders
-- `GET /api/reminders` list reminders
-- `POST /api/reminders` create reminder
-- `PATCH /api/reminders/:reminderId/complete` mark complete
-- `DELETE /api/reminders/:reminderId` delete reminder
-
-Vaccines
-- `GET /api/vaccines` list vaccines
-- `GET /api/vaccines/mother` list vaccines for pregnant users
-- `GET /api/vaccines/:vaccineId` get vaccine by id
-- `GET /api/vaccines/reminders/user` list user vaccine reminders
-- `POST /api/vaccines/reminders` create vaccine reminder
-- `POST /api/vaccines/reminders/cleanup` cleanup duplicates
-- `PATCH /api/vaccines/reminders/:reminderId/status` update reminder status
-- `DELETE /api/vaccines/reminders/:reminderId` delete reminder
-
-Static Content
-- `GET /api/static/daily-tip`
-- `GET /api/static/nutrition-tips`
-- `GET /api/static/feeding-guide`
-- `GET /api/static/safe-foods`
-- `GET /api/static/vaccine-schedule`
-
-Profile
-- `GET /api/profile` get user profile
-- `PUT /api/profile` update profile
-- `POST /api/profile/emergency-contact` save contact
-- `GET /api/profile/emergency-contact` get contact
-- `DELETE /api/profile/emergency-contact` delete contact
-- `POST /api/profile/partner-invite` send invite
-- `GET /api/profile/partner-invitations` list invites
-- `PATCH /api/profile/partner-invitations/:invitationId/accept` accept invite
-- `PATCH /api/profile/partner-invitations/:invitationId/decline` decline invite
-
-Feeding
-- `GET /api/feedings` list feeding guide entries (by age filter)
-- `GET /api/feedings/:feedingId` get feeding entry
-
-### Authentication and Security
-- Password strength is validated server-side before account creation.
-- Passwords are hashed with bcrypt and stored as `hashed_password`.
-- Login verifies password and issues a JWT access token.
-- Auth middleware validates `Authorization: Bearer <token>` and attaches `req.user`.
-
-## Frontend (How It Works)
-### Routing and Pages
-- Login and Signup handle authentication flows.
-- Growth page handles baby list, growth records, charts, and milestones.
-- Add Baby is a dedicated page for creating new baby profiles.
-
-### Frontend Route Map (UI)
+## Frontend Route Map
 Routes are defined in [FrontEnd/src/App.jsx](FrontEnd/src/App.jsx).
 
-Public and onboarding
-- `/onboarding` first-time onboarding
-- `/welcome` stage selection
-- `/login` sign in
-- `/signup` create account
+Public and entry routes
+- `/onboarding` onboarding screen.
+- `/welcome` stage selection.
+- `/login` sign in.
+- `/signup` create account.
 
-New parent flow
-- `/home` dashboard
-- `/add-baby` add baby form
-- `/nutrition` nutrition tips
-- `/vaccines` vaccines info
-- `/feeding` feeding guides
-- `/growth` growth tracking
-- `/profile` user profile
+New parent routes
+- `/home` dashboard.
+- `/add-baby` add baby form.
+- `/nutrition` nutrition guidance.
+- `/vaccines` vaccine guidance.
+- `/feeding` feeding guidance.
+- `/growth` growth tracking.
+- `/profile` profile management.
 
-Pregnant flow
-- `/pregnant/home` pregnant dashboard
-- `/pregnant/nutrition` nutrition tips for pregnancy
-- `/pregnant/vaccines` vaccines and health for pregnancy
+Pregnant user routes
+- `/pregnant/home` pregnant dashboard.
+- `/pregnant/nutrition` pregnancy nutrition guidance.
+- `/pregnant/vaccines` pregnancy vaccine and health guidance.
 
-Redirects
-- `/` and any unknown path redirect to `/onboarding`
+Fallback behavior
+- `/` and unknown paths redirect to `/onboarding`.
 
-### UI Structure (Frontend)
-Root composition
-- [FrontEnd/src/main.jsx](FrontEnd/src/main.jsx) wraps the app with `ThemeProvider` and renders `App`.
-- [FrontEnd/src/App.jsx](FrontEnd/src/App.jsx) wraps routes in `BabyProvider` and `Router`.
+## Backend Route Map
+All API routes are mounted under `/api` in [backend/src/server.js](backend/src/server.js).
 
-Page-level composition (high level)
-- Login: Auth header/footer + reusable inputs + submit button.
-- Signup: Auth header/footer + inputs + password strength + user type selector + date input.
-- Growth: header + tabs + baby list cards + baby form + growth input + charts + records table.
-- Add Baby: page shell + BabyForm.
-- Home/Pregnant Home: dashboard pages with navigation and content sections.
-- Nutrition/Vaccines/Feeding: content pages consuming static API data.
-- Profile: user profile and emergency contact management.
+Authentication
+- `POST /api/auth/register` create a user.
+- `POST /api/auth/login` authenticate and issue a token.
+- `GET /api/auth/me` fetch the current user.
 
-Key reusable UI components
-- Auth: `AuthHeader`, `AuthFooter`, `FormInput`, `ErrorMessage`, `SubmitButton`.
-- Baby/Growth: `BabyCard`, `BabyForm`, `GrowthInput`, `GrowthHeader`, `MilestoneCard`.
-- Navigation: `BottomNavigation` on main flows.
+Babies
+- `GET /api/babies` list active babies.
+- `POST /api/babies` create a baby profile.
+- `GET /api/babies/:babyId` fetch a baby and related growth data.
+- `PUT /api/babies/:babyId` update a baby profile.
+- `DELETE /api/babies/:babyId` soft delete a baby.
+- `GET /api/babies/:babyId/growth` list growth records for one baby.
 
-### State Management
-- `BabyContext` loads babies on app start (if token exists).
-- The currently selected baby is saved to `localStorage`.
-- Local UI state is managed with React hooks (`useState`, `useEffect`).
+Growth
+- `GET /api/growth/records` list growth records.
+- `POST /api/growth/records` create a growth record.
+- `GET /api/growth/records/:recordId` fetch one record.
+- `PUT /api/growth/records/:recordId` update one record.
+- `DELETE /api/growth/records/:recordId` delete one record.
 
-### API Client Layer
-- `api.js` wraps `fetch` with:
-  - Base URL config
-  - Automatic JWT header injection
-  - Error handling and response parsing
-- All frontend pages call this API layer instead of `fetch` directly.
+Reminders
+- `GET /api/reminders` list reminders.
+- `POST /api/reminders` create a reminder.
+- `PATCH /api/reminders/:reminderId/complete` mark a reminder complete.
+- `DELETE /api/reminders/:reminderId` remove a reminder.
 
-## Key Data Flows
-### Sign Up Flow
-1. User fills the Signup form (client validation).
-2. Frontend sends `/api/auth/register`.
-3. Backend validates password strength, checks email uniqueness, hashes password, creates user.
-4. Frontend navigates to Login on success.
+Vaccines
+- `GET /api/vaccines` list all vaccines.
+- `GET /api/vaccines/mother` list vaccines for pregnant users.
+- `GET /api/vaccines/:vaccineId` fetch one vaccine.
+- `GET /api/vaccines/reminders/user` list vaccine reminders for the current user.
+- `POST /api/vaccines/reminders` create a vaccine reminder.
+- `POST /api/vaccines/reminders/cleanup` remove duplicate reminders.
+- `PATCH /api/vaccines/reminders/:reminderId/status` update reminder status.
+- `DELETE /api/vaccines/reminders/:reminderId` delete a vaccine reminder.
 
-### Login Flow
-1. User enters credentials on Login page.
-2. Frontend calls `/api/auth/login`.
-3. Backend verifies credentials and returns a JWT.
-4. Frontend stores token and fetches current user profile.
+Static content
+- `GET /api/static/daily-tip` daily tip content.
+- `GET /api/static/nutrition-tips` nutrition advice.
+- `GET /api/static/feeding-guide` feeding guide content.
+- `GET /api/static/safe-foods` safe foods list.
+- `GET /api/static/vaccine-schedule` vaccine schedule data.
 
-### Baby Create/Update/Delete Flow
-1. Baby form validates name and date of birth.
-2. Frontend calls `/api/babies` (POST/PUT/DELETE).
-3. Backend creates or updates the Baby model.
-4. Frontend updates context state and refreshes UI.
+Profile
+- `GET /api/profile` fetch the user profile.
+- `PUT /api/profile` update profile details.
+- `POST /api/profile/emergency-contact` save an emergency contact.
+- `GET /api/profile/emergency-contact` fetch the emergency contact.
+- `DELETE /api/profile/emergency-contact` delete the emergency contact.
+- `POST /api/profile/partner-invite` send a partner invite.
+- `GET /api/profile/partner-invitations` list partner invites.
+- `PATCH /api/profile/partner-invitations/:invitationId/accept` accept an invite.
+- `PATCH /api/profile/partner-invitations/:invitationId/decline` decline an invite.
 
-### Growth Record Flow
-1. Growth input validates weight and height.
-2. Frontend calls `/api/growth/records` (POST/GET/DELETE).
-3. Backend writes GrowthRecord and returns updated data.
-4. Growth page updates charts and tables.
+Feeding
+- `GET /api/feedings` list feeding guidance, optionally filtered by age.
+- `GET /api/feedings/:feedingId` fetch one feeding entry.
 
-## Visual Workflow (User Journey)
+## Core Data Model
+- `User` stores account identity, auth fields, and user type.
+- `Baby` stores baby profile data and belongs to a user.
+- `GrowthRecord` stores measurements and links to both user and baby.
+- `Reminder` stores task reminders and vaccine reminders.
+- `Vaccine` stores master vaccine definitions and schedule metadata.
+- `Note`, `Partner`, and `EmergencyContact` support profile coordination features.
+
+## Key Relationships
+- One user can have many babies.
+- One baby can have many growth records.
+- One user can have many reminders and profile-linked records.
+- Vaccine schedules are derived from static timing rules and stored reminder records.
+
+## Frontend Composition
+- [FrontEnd/src/main.jsx](FrontEnd/src/main.jsx) bootstraps the app and renders `App`.
+- [FrontEnd/src/App.jsx](FrontEnd/src/App.jsx) wires routing and wraps the app in `BabyProvider`.
+- [FrontEnd/src/api.js](FrontEnd/src/api.js) centralizes network requests, auth headers, and error handling.
+
+### Common UI building blocks
+- Auth: `AuthHeader`, `AuthFooter`, `FormInput`, `ErrorMessage`, `PasswordStrengthIndicator`.
+- Baby and growth: `BabyCard`, `BabyForm`, `BabyProfileCard`, `GrowthInput`, `GrowthHeader`, `MilestoneCard`.
+- Navigation and dashboard: `BottomNavigation`, `GreetingCard`, `NotificationBanner`, `NotificationCard`.
+- Content pages: `NutritionCard`, `NutritionHeader`, `FeedingHeader`, `KhopCard`.
+
+## End-to-End Flows
+
+### 1. Onboarding and stage selection flow
+1. The user opens the app.
+2. The app lands on onboarding and then stage selection.
+3. The user chooses a journey path: pregnant user or new parent.
+4. The app routes the user into the appropriate authentication and dashboard flow.
+
+### 2. Sign-up flow
+1. The user submits the registration form.
+2. The frontend validates the inputs before making the request.
+3. The frontend sends `POST /api/auth/register`.
+4. The backend validates password strength, checks for duplicates, hashes the password, and creates the account.
+5. The user is redirected to login after success.
+
+### 3. Login flow
+1. The user submits email and password.
+2. The frontend sends `POST /api/auth/login`.
+3. The backend verifies credentials and returns a JWT.
+4. The frontend stores the token, restores the current user, and loads protected app data.
+
+### 4. New parent flow
+1. The user signs in as a new parent.
+2. The app opens the main dashboard.
+3. The user adds one or more baby profiles.
+4. The user moves between baby management, growth, nutrition, vaccines, feeding, and profile pages from the dashboard.
+
+### 5. Pregnant user flow
+1. The user signs in as a pregnant user.
+2. The app opens the pregnant dashboard.
+3. The user reviews pregnancy nutrition and pregnancy vaccine guidance.
+4. The same profile and reminder infrastructure remains available behind the scenes.
+
+### 6. Baby profile management flow
+1. The user opens the add-baby form or edits an existing baby.
+2. The frontend validates the baby name and birth date.
+3. The frontend sends create, update, or delete requests to `/api/babies`.
+4. The backend updates the database and the frontend refreshes the baby list and selected baby state.
+
+### 7. Growth tracking flow
+1. The user selects a baby and opens growth tracking.
+2. The user enters measurements such as weight and height.
+3. The frontend sends the growth data to `/api/growth/records`.
+4. The backend stores the record and returns updated data.
+5. The frontend updates charts, records, and milestone views.
+
+### 8. Feeding and nutrition flow
+1. The user opens feeding or nutrition content.
+2. The frontend requests the relevant static data from the API.
+3. The backend returns age-based feeding guidance and nutrition tips.
+4. The UI displays structured guidance cards and reference content.
+
+### 9. Vaccine and reminder flow
+1. The frontend loads vaccine master data.
+2. The app calculates due dates from the baby's birth date and the schedule rules in [FrontEnd/src/utils/vaccineSchedule.js](FrontEnd/src/utils/vaccineSchedule.js).
+3. Reminder records are generated for each applicable dose.
+4. The backend stores reminders and exposes them through the reminders and vaccines endpoints.
+5. The user can review, complete, clean up, or delete reminders.
+
+### 10. Profile and partner flow
+1. The user opens the profile page.
+2. The user updates personal profile details.
+3. The user adds or removes an emergency contact.
+4. The user sends, accepts, or declines partner invitations.
+
+## Overall User Journey
 ```mermaid
 flowchart LR
-  classDef entry fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px,color:#1b5e20
-  classDef auth fill:#e3f2fd,stroke:#1565c0,stroke-width:1px,color:#0d47a1
-  classDef decision fill:#fff8e1,stroke:#f57f17,stroke-width:1px,color:#6d4c41
-  classDef parent fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c
-  classDef preg fill:#fff3e0,stroke:#ef6c00,stroke-width:1px,color:#e65100
-  classDef shared fill:#eceff1,stroke:#546e7a,stroke-width:1px,color:#263238
+  classDef entry fill:#f1f5f9,stroke:#334155,color:#0f172a
+  classDef auth fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  classDef parent fill:#ecfccb,stroke:#65a30d,color:#365314
+  classDef preg fill:#ffedd5,stroke:#f97316,color:#7c2d12
+  classDef shared fill:#e5e7eb,stroke:#6b7280,color:#111827
 
-  Start([Open App]):::entry --> Onboarding[Onboarding]:::entry --> Stage[Stage Select]:::entry
+  Start([Open App]):::entry --> Onboarding[Onboarding]:::entry --> Stage[Stage Selection]:::entry
+  Stage -->|New account| Signup[Sign Up]:::auth --> Login[Login]:::auth
+  Stage -->|Existing account| Login
+  Login --> UserType{User Type}:::shared
 
-  Stage -->|New user| Signup[Signup]:::auth --> Login[Login]:::auth
-  Stage -->|Has account| Login
+  UserType -->|New parent| ParentHome[Home Dashboard]:::parent
+  UserType -->|Pregnant user| PregHome[Pregnant Dashboard]:::preg
 
-  Login --> Auth{User Type?}:::decision
+  ParentHome --> AddBaby[Add Baby]:::parent
+  ParentHome --> Growth[Growth Tracking]:::parent
+  ParentHome --> Feeding[Feeding Guide]:::parent
+  ParentHome --> Nutrition[Nutrition]:::parent
+  ParentHome --> Vaccines[Vaccines]:::parent
+  ParentHome --> Profile[Profile]:::shared
 
-  subgraph Parent[New Parent Flow]
-    direction TB
-    ParentHome[Home]:::parent --> AddBaby[Add Baby]:::parent
-    ParentHome --> Growth[Growth Tracking]:::parent
-    ParentHome --> Nutrition[Nutrition]:::parent
-    ParentHome --> Vaccines[Vaccines]:::parent
-    ParentHome --> Feeding[Feeding]:::parent
-    ParentHome --> Profile[Profile]:::shared
-  end
-
-  subgraph Preg[Pregnant Flow]
-    direction TB
-    PregHome[Pregnant Home]:::preg --> PregNutrition[Pregnant Nutrition]:::preg
-    PregHome --> PregVaccines[Pregnant Vaccines]:::preg
-    PregHome --> Profile
-  end
-
-  Auth -->|newParent| ParentHome
-  Auth -->|pregnant| PregHome
+  PregHome --> PregNutrition[Pregnant Nutrition]:::preg
+  PregHome --> PregVaccines[Pregnant Vaccines]:::preg
+  PregHome --> Profile
 ```
 
-## Visual Sequence Example (Login)
+## Login Sequence
 ```mermaid
 sequenceDiagram
   participant U as User
   participant UI as Frontend
   participant API as Backend
   participant DB as Database
-  U->>UI: Enter email + password
+  U->>UI: Enter email and password
   UI->>API: POST /api/auth/login
   API->>DB: Find user by email
   DB-->>API: User record
   API->>API: Verify bcrypt hash
-  API-->>UI: JWT access token
-  UI->>UI: Save token in localStorage
+  API-->>UI: JWT token
+  UI->>UI: Store token and load protected data
 ```
 
 ## Data Storage
-- Default: SQLite file database for local/dev usage.
-- Optional: MySQL via `DATABASE_URL`.
-- Sequelize models define all tables and relationships.
+- SQLite is used for local and development setups by default.
+- MySQL can be enabled through `DATABASE_URL`.
+- Sequelize defines tables, associations, and sync behavior.
 
-## Why It Works End-to-End
-- Frontend validates input and uses a single API client for network calls.
-- Backend enforces auth, runs validations, and persists data via Sequelize.
-- Context state and localStorage keep the UI consistent across sessions.
+## Summary
+NutriTrack is organized as a routed frontend on top of a token-protected REST API. The application supports onboarding, sign-up, login, user-type selection, new parent and pregnant dashboards, baby management, growth tracking, feeding and nutrition content, vaccine guidance, reminder automation, and profile coordination.
 
-## Notes and Constraints
-- JWT secret should be set securely in production.
-- Email format validation is strict on the frontend; backend only checks uniqueness.
-- Soft delete is used for babies (`is_active = false`).
 
----
+
+
 
 
