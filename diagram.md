@@ -246,7 +246,42 @@ note for Food "Reference content only; no database association"
 note for Vaccine "Reference content only; no database association"
 ```
 
-## 4. Data Flow Diagram
+## 4. Context Diagram
+
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Inter, Segoe UI, Arial, sans-serif",
+    "primaryColor": "#E8F5F1",
+    "primaryTextColor": "#14322E",
+    "primaryBorderColor": "#3A7D6D",
+    "lineColor": "#6B7D78",
+    "secondaryColor": "#FFF4D6",
+    "tertiaryColor": "#F7FAF9",
+    "background": "transparent"
+  },
+  "flowchart": { "curve": "basis" }
+}}%%
+flowchart LR
+  Parent([Parent / Guardian])
+  Partner([Partner])
+  System((NutriTrack System))
+
+  Parent -->|Register, sign in, manage baby data, track health| System
+  System -->|Profiles, reminders, guidance, growth insights| Parent
+
+  Partner -->|Accept or decline invitation| System
+  System -->|Partner invitation and shared access updates| Partner
+
+  classDef actor fill:#FFF4D6,stroke:#B08A1F,color:#4A3700,stroke-width:1.5px;
+  classDef system fill:#E8F5F1,stroke:#3A7D6D,color:#14322E,stroke-width:1.7px;
+
+  class Parent,Partner actor;
+  class System system;
+```
+
+## 5. Level 0 DFD
 
 ```mermaid
 %%{init: {
@@ -267,10 +302,10 @@ flowchart LR
   Parent([Parent / Guardian])
   Partner([Partner])
 
-  P1((1. Authenticate & manage profile))
-  P2((2. Manage baby records))
-  P3((3. Track growth and reminders))
-  P4((4. Display nutrition and vaccine guidance))
+  P1((1. Account and profile management))
+  P2((2. Baby and family records))
+  P3((3. Growth, reminders, and notifications))
+  P4((4. Health guidance and reference content))
 
   D1[(Users)]
   D2[(Babies)]
@@ -311,7 +346,88 @@ flowchart LR
   class D1,D2,D3,D4,D5,D6,D7,D8,D9 store;
 ```
 
-## 5. Sequence Diagram
+## 6. Level 1 DFD
+
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Inter, Segoe UI, Arial, sans-serif",
+    "primaryColor": "#E8F5F1",
+    "primaryTextColor": "#14322E",
+    "primaryBorderColor": "#3A7D6D",
+    "lineColor": "#6B7D78",
+    "secondaryColor": "#FFF4D6",
+    "tertiaryColor": "#F7FAF9",
+    "background": "transparent"
+  },
+  "flowchart": { "curve": "basis" }
+}}%%
+flowchart LR
+  Parent([Parent / Guardian])
+  Partner([Partner])
+
+  P11((1.1 Register and sign in))
+  P12((1.2 Manage profile))
+  P21((2.1 Add baby details))
+  P22((2.2 Save emergency contact))
+  P23((2.3 Manage partner access))
+  P31((3.1 Record growth measurements))
+  P32((3.2 Create reminders))
+  P33((3.3 Complete reminders))
+  P41((4.1 View vaccine guidance))
+  P42((4.2 View feeding guidance))
+  P43((4.3 View food guidance))
+
+  D1[(Users)]
+  D2[(Babies)]
+  D3[(Growth Records)]
+  D4[(Reminders)]
+  D5[(Emergency Contacts)]
+  D6[(Partners)]
+  D7[(Vaccines)]
+  D8[(Feedings)]
+  D9[(Foods)]
+
+  Parent --> P11
+  Parent --> P12
+  Parent --> P21
+  Parent --> P22
+  Parent --> P23
+  Parent --> P31
+  Parent --> P32
+  Parent --> P33
+  Parent --> P41
+  Parent --> P42
+  Parent --> P43
+  Partner --> P23
+
+  P11 <--> D1
+  P12 <--> D1
+  P12 <--> D5
+
+  P21 <--> D2
+  P22 <--> D5
+  P23 <--> D6
+
+  P31 <--> D3
+  P32 <--> D4
+  P33 <--> D4
+
+  P41 <--> D7
+  P42 <--> D8
+  P43 <--> D9
+
+  classDef actor fill:#FFF4D6,stroke:#B08A1F,color:#4A3700,stroke-width:1.5px;
+  classDef process fill:#E8F5F1,stroke:#3A7D6D,color:#14322E,stroke-width:1.5px;
+  classDef store fill:#EEF3F2,stroke:#6B7D78,color:#20312F,stroke-width:1.2px;
+
+  class Parent,Partner actor;
+  class P11,P12,P21,P22,P23,P31,P32,P33,P41,P42,P43 process;
+  class D1,D2,D3,D4,D5,D6,D7,D8,D9 store;
+```
+
+## 7. Sequence Diagram
 
 ```mermaid
 sequenceDiagram
