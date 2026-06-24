@@ -367,17 +367,31 @@ flowchart LR
   Parent([Parent / Guardian])
   Partner([Partner])
 
-  P11((1.1 Register and sign in))
-  P12((1.2 Manage profile))
-  P21((2.1 Add baby details))
-  P22((2.2 Save emergency contact))
-  P23((2.3 Manage partner access))
-  P31((3.1 Record growth measurements))
-  P32((3.2 Create reminders))
-  P33((3.3 Complete reminders))
-  P41((4.1 View vaccine guidance))
-  P42((4.2 View feeding guidance))
-  P43((4.3 View food guidance))
+  subgraph A[1.0 Account and Profile Management]
+    P11((1.1 Authenticate user))
+    P12((1.2 Manage profile details))
+    P13((1.3 Manage emergency contact))
+    P14((1.4 Manage partner invitation))
+  end
+
+  subgraph B[2.0 Baby and Family Records]
+    P21((2.1 Add baby profile))
+    P22((2.2 Update baby information))
+    P23((2.3 Maintain family relationships))
+  end
+
+  subgraph C[3.0 Growth, Reminders, and Notifications]
+    P31((3.1 Record growth measurement))
+    P32((3.2 Create or update reminder))
+    P33((3.3 Mark reminder complete))
+    P34((3.4 Generate user notification))
+  end
+
+  subgraph D[4.0 Health Guidance and Reference Content]
+    P41((4.1 Retrieve vaccine guidance))
+    P42((4.2 Retrieve feeding guidance))
+    P43((4.3 Retrieve food guidance))
+  end
 
   D1[(Users)]
   D2[(Babies)]
@@ -391,6 +405,8 @@ flowchart LR
 
   Parent --> P11
   Parent --> P12
+  Parent --> P13
+  Parent --> P14
   Parent --> P21
   Parent --> P22
   Parent --> P23
@@ -400,19 +416,21 @@ flowchart LR
   Parent --> P41
   Parent --> P42
   Parent --> P43
-  Partner --> P23
+  Partner --> P14
 
   P11 <--> D1
   P12 <--> D1
-  P12 <--> D5
+  P13 <--> D5
+  P14 <--> D6
 
   P21 <--> D2
-  P22 <--> D5
+  P22 <--> D2
   P23 <--> D6
 
   P31 <--> D3
   P32 <--> D4
   P33 <--> D4
+  P34 <--> D4
 
   P41 <--> D7
   P42 <--> D8
@@ -421,10 +439,12 @@ flowchart LR
   classDef actor fill:#FFF4D6,stroke:#B08A1F,color:#4A3700,stroke-width:1.5px;
   classDef process fill:#E8F5F1,stroke:#3A7D6D,color:#14322E,stroke-width:1.5px;
   classDef store fill:#EEF3F2,stroke:#6B7D78,color:#20312F,stroke-width:1.2px;
+  classDef group fill:#F7FAF9,stroke:#B8D6CF,color:#183B35,stroke-width:1px,stroke-dasharray:4 3;
 
   class Parent,Partner actor;
-  class P11,P12,P21,P22,P23,P31,P32,P33,P41,P42,P43 process;
+  class P11,P12,P13,P14,P21,P22,P23,P31,P32,P33,P34,P41,P42,P43 process;
   class D1,D2,D3,D4,D5,D6,D7,D8,D9 store;
+  class A,B,C,D group;
 ```
 
 ## 7. Sequence Diagram
