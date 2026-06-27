@@ -139,19 +139,24 @@ stateDiagram-v2
   LoggedOut --> Dashboard: sign in
   Dashboard --> LoggedOut: sign out
 
-  Dashboard --> EditingBaby: update baby profile
-  Dashboard --> RecordingGrowth: add growth record
-  Dashboard --> ManagingReminders: manage reminders
-  Dashboard --> ViewingGuidance: open guidance
+  state "Baby Profile" as BabyProfile
+  state "Growth Record" as GrowthRecord
+  state "Reminders" as Reminders
+  state "Guidance" as Guidance
 
-  EditingBaby --> Dashboard: save
-  RecordingGrowth --> Dashboard: save
-  ManagingReminders --> Dashboard: save
-  ViewingGuidance --> Dashboard: close
+  Dashboard --> BabyProfile: update baby
+  Dashboard --> GrowthRecord: add record
+  Dashboard --> Reminders: manage reminder
+  Dashboard --> Guidance: view info
+
+  BabyProfile --> Dashboard: save
+  GrowthRecord --> Dashboard: save
+  Reminders --> Dashboard: save
+  Guidance --> Dashboard: close
 
   classDef stateNode fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px;
 
-  class LoggedOut,Dashboard,EditingBaby,RecordingGrowth,ManagingReminders,ViewingGuidance stateNode;
+  class LoggedOut,Dashboard,BabyProfile,GrowthRecord,Reminders,Guidance stateNode;
 ```
 
 ## 4. Class Diagram
