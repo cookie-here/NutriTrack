@@ -70,7 +70,78 @@ flowchart TB
   class Static,Feeds,Foods,Vaccines content;
 ```
 
-## 2. Use Case Diagram
+## 2. Scenario Based Analysis - Use Case Diagram
+
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Inter, Segoe UI, Arial, sans-serif",
+    "primaryColor": "#E8F5F1",
+    "primaryTextColor": "#14322E",
+    "primaryBorderColor": "#3A7D6D",
+    "lineColor": "#6B7D78",
+    "secondaryColor": "#FFF4D6",
+    "tertiaryColor": "#F7FAF9",
+    "background": "transparent",
+    "clusterBkg": "#F5FBF9",
+    "clusterBorder": "#B8D6CF"
+  }
+}}%%
+flowchart LR
+  Parent([Parent / Guardian])
+  Partner([Partner])
+
+  subgraph System[NutriTrack System]
+    direction TB
+
+    subgraph A[Account & Access]
+      UC1([Register / Sign in])
+      UC2([Manage profile])
+      UC3([Save emergency contact])
+      UC4([Send partner invitation])
+      UC5([Accept / decline invitation])
+    end
+
+    subgraph B[Baby & Health Tracking]
+      UC6([Add / update baby details])
+      UC7([Track growth records])
+      UC8([Create / complete reminders])
+      UC9([Review vaccine schedule])
+    end
+
+    subgraph C[Guidance & Reference]
+      UC10([Browse feeding guidance])
+      UC11([Browse safe food guidance])
+    end
+  end
+
+  Parent --> UC1
+  Parent --> UC2
+  Parent --> UC3
+  Parent --> UC4
+  Parent --> UC6
+  Parent --> UC7
+  Parent --> UC8
+  Parent --> UC9
+  Parent --> UC10
+  Parent --> UC11
+  Partner --> UC5
+
+  UC4 -. shared access .-> UC5
+  UC8 -. notifications .-> UC3
+  UC9 -. updated milestones .-> UC7
+
+  classDef actor fill:#FFF4D6,stroke:#B08A1F,color:#4A3700,stroke-width:1.6px;
+  classDef usecase fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px;
+  classDef group fill:#F7FAF9,stroke:#B8D6CF,color:#183B35,stroke-width:1px,stroke-dasharray:4 3;
+
+  class Parent,Partner actor;
+  class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11 usecase;
+  class A,B,C group;
+```
+
+## 3. Behavioral Analysis - State Chart Diagram
 
 ```mermaid
 %%{init: {
@@ -84,46 +155,60 @@ flowchart TB
     "secondaryColor": "#FFF4D6",
     "tertiaryColor": "#F7FAF9",
     "background": "transparent"
-  }
+  },
+  "state": { "nodeSpacing": 36, "rankSpacing": 42 }
 }}%%
-flowchart LR
-  Parent((Parent / Guardian))
-  Partner((Partner))
+stateDiagram-v2
+  [*] --> LoggedOut
 
-  subgraph System[NutriTrack System]
-    UC1([Register / Sign in])
-    UC2([Manage profile])
-    UC3([Add and update baby details])
-    UC4([Track growth records])
-    UC5([Create and complete reminders])
-    UC6([Review vaccine schedule])
-    UC7([Browse feeding guidance])
-    UC8([Browse safe food guidance])
-    UC9([Save emergency contact])
-    UC10([Send partner invitation])
-    UC11([Accept / decline partner invitation])
-  end
+  LoggedOut --> Authenticating: sign in / register
+  Authenticating --> Dashboard: auth success
+  Authenticating --> LoggedOut: auth failed
 
-  Parent --> UC1
-  Parent --> UC2
-  Parent --> UC3
-  Parent --> UC4
-  Parent --> UC5
-  Parent --> UC6
-  Parent --> UC7
-  Parent --> UC8
-  Parent --> UC9
-  Parent --> UC10
-  Partner --> UC11
+  Dashboard --> ProfileManagement: manage profile
+  Dashboard --> BabyManagement: update baby details
+  Dashboard --> GrowthTracking: record measurement
+  Dashboard --> ReminderManagement: create or complete reminder
+  Dashboard --> GuidanceBrowse: open guidance
+  Dashboard --> PartnerSharing: invite partner
+  Dashboard --> LogoutConfirm: sign out
 
-  classDef actor fill:#FFF4D6,stroke:#B08A1F,color:#4A3700,stroke-width:1.5px;
-  classDef usecase fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px;
+  ProfileManagement --> Dashboard: save changes
+  BabyManagement --> Dashboard: save baby profile
+  GrowthTracking --> Dashboard: save growth record
+  ReminderManagement --> Dashboard: save reminder
+  GuidanceBrowse --> Dashboard: close guidance
+  PartnerSharing --> Dashboard: invitation sent / responded
 
-  class Parent,Partner actor;
-  class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11 usecase;
+  GrowthTracking --> NotificationReady: threshold or schedule reached
+  ReminderManagement --> NotificationReady: due reminder
+  NotificationReady --> Dashboard: notify parent / update status
+
+  LogoutConfirm --> LoggedOut: session cleared
+
+  state Dashboard {
+    [*] --> HomeView
+    HomeView --> HomeView: browse cards
+  }
+
+  state GrowthTracking {
+    [*] --> LogMeasurement
+    LogMeasurement --> ReviewTrend: data saved
+    ReviewTrend --> LogMeasurement: add another entry
+  }
+
+  state ReminderManagement {
+    [*] --> DraftReminder
+    DraftReminder --> ScheduledReminder: save
+    ScheduledReminder --> CompletedReminder: mark complete
+  }
+
+  classDef stateNode fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px;
+
+  class LoggedOut,Authenticating,Dashboard,ProfileManagement,BabyManagement,GrowthTracking,ReminderManagement,GuidanceBrowse,PartnerSharing,LogoutConfirm,NotificationReady stateNode;
 ```
 
-## 3. Class Diagram
+## 4. Class Diagram
 
 ```mermaid
 classDiagram
@@ -246,7 +331,7 @@ note for Food "Reference content only; no database association"
 note for Vaccine "Reference content only; no database association"
 ```
 
-## 4. Context Diagram
+## 5. Context Diagram
 
 ```mermaid
 %%{init: {
@@ -281,7 +366,7 @@ flowchart LR
   class System system;
 ```
 
-## 5. Level 0 DFD
+## 6. Level 0 DFD
 
 ```mermaid
 %%{init: {
@@ -346,7 +431,7 @@ flowchart LR
   class D1,D2,D3,D4,D5,D6,D7,D8,D9 store;
 ```
 
-## 6. Level 1 DFD
+## 7. Level 1 DFD
 
 ```mermaid
 %%{init: {
@@ -447,7 +532,7 @@ flowchart LR
   class A,B,C,D group;
 ```
 
-## 7. Sequence Diagram
+## 8. Sequence Diagram
 
 ```mermaid
 sequenceDiagram
@@ -478,4 +563,4 @@ sequenceDiagram
 
 - The backend can run on SQLite in local development or MySQL in production-like deployments.
 - The diagrams emphasize the project’s actual domain objects and API flows rather than generic placeholders.
-- Mermaid rendering will look best in a Markdown viewer that supports the class, flowchart, and sequence diagram syntax used above.
+- Mermaid rendering will look best in a Markdown viewer that supports the class, flowchart, state, and sequence diagram syntax used above.
