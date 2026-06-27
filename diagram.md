@@ -88,57 +88,34 @@ flowchart TB
     "clusterBorder": "#B8D6CF"
   }
 }}%%
-flowchart LR
+flowchart TB
   Parent([Parent / Guardian])
   Partner([Partner])
 
   subgraph System[NutriTrack System]
     direction TB
-
-    subgraph A[Account & Access]
-      UC1([Register / Sign in])
-      UC2([Manage profile])
-      UC3([Save emergency contact])
-      UC4([Send partner invitation])
-      UC5([Accept / decline invitation])
-    end
-
-    subgraph B[Baby & Health Tracking]
-      UC6([Add / update baby details])
-      UC7([Track growth records])
-      UC8([Create / complete reminders])
-      UC9([Review vaccine schedule])
-    end
-
-    subgraph C[Guidance & Reference]
-      UC10([Browse feeding guidance])
-      UC11([Browse safe food guidance])
-    end
+    UC1([Sign in / manage account])
+    UC2([Manage baby profile])
+    UC3([Track growth and reminders])
+    UC4([View feeding and vaccine guidance])
+    UC5([Invite or accept partner access])
   end
 
   Parent --> UC1
   Parent --> UC2
   Parent --> UC3
   Parent --> UC4
-  Parent --> UC6
-  Parent --> UC7
-  Parent --> UC8
-  Parent --> UC9
-  Parent --> UC10
-  Parent --> UC11
+  Parent --> UC5
   Partner --> UC5
 
-  UC4 -. shared access .-> UC5
-  UC8 -. notifications .-> UC3
-  UC9 -. updated milestones .-> UC7
+  UC5 -. shared access .-> UC2
+  UC3 -. reminders .-> UC4
 
   classDef actor fill:#FFF4D6,stroke:#B08A1F,color:#4A3700,stroke-width:1.6px;
   classDef usecase fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px;
-  classDef group fill:#F7FAF9,stroke:#B8D6CF,color:#183B35,stroke-width:1px,stroke-dasharray:4 3;
 
   class Parent,Partner actor;
-  class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11 usecase;
-  class A,B,C group;
+  class UC1,UC2,UC3,UC4,UC5 usecase;
 ```
 
 ## 3. Behavioral Analysis - State Chart Diagram
@@ -156,7 +133,7 @@ flowchart LR
     "tertiaryColor": "#F7FAF9",
     "background": "transparent"
   },
-  "state": { "nodeSpacing": 36, "rankSpacing": 42 }
+  "state": { "nodeSpacing": 28, "rankSpacing": 30 }
 }}%%
 stateDiagram-v2
   [*] --> LoggedOut
@@ -165,47 +142,28 @@ stateDiagram-v2
   Authenticating --> Dashboard: auth success
   Authenticating --> LoggedOut: auth failed
 
-  Dashboard --> ProfileManagement: manage profile
-  Dashboard --> BabyManagement: update baby details
-  Dashboard --> GrowthTracking: record measurement
-  Dashboard --> ReminderManagement: create or complete reminder
-  Dashboard --> GuidanceBrowse: open guidance
-  Dashboard --> PartnerSharing: invite partner
-  Dashboard --> LogoutConfirm: sign out
+  Dashboard --> EditingBaby: update baby profile
+  Dashboard --> RecordingGrowth: add growth record
+  Dashboard --> ManagingReminders: create or complete reminder
+  Dashboard --> ViewingGuidance: open guidance
+  Dashboard --> LoggedOut: sign out
 
-  ProfileManagement --> Dashboard: save changes
-  BabyManagement --> Dashboard: save baby profile
-  GrowthTracking --> Dashboard: save growth record
-  ReminderManagement --> Dashboard: save reminder
-  GuidanceBrowse --> Dashboard: close guidance
-  PartnerSharing --> Dashboard: invitation sent / responded
+  EditingBaby --> Dashboard: save changes
+  RecordingGrowth --> Dashboard: save record
+  ManagingReminders --> Dashboard: save reminder
+  ViewingGuidance --> Dashboard: close guidance
 
-  GrowthTracking --> NotificationReady: threshold or schedule reached
-  ReminderManagement --> NotificationReady: due reminder
-  NotificationReady --> Dashboard: notify parent / update status
-
-  LogoutConfirm --> LoggedOut: session cleared
+  ManagingReminders --> NotificationReady: reminder due
+  NotificationReady --> Dashboard: notify parent
 
   state Dashboard {
     [*] --> HomeView
-    HomeView --> HomeView: browse cards
-  }
-
-  state GrowthTracking {
-    [*] --> LogMeasurement
-    LogMeasurement --> ReviewTrend: data saved
-    ReviewTrend --> LogMeasurement: add another entry
-  }
-
-  state ReminderManagement {
-    [*] --> DraftReminder
-    DraftReminder --> ScheduledReminder: save
-    ScheduledReminder --> CompletedReminder: mark complete
+    HomeView --> HomeView: browse home
   }
 
   classDef stateNode fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px;
 
-  class LoggedOut,Authenticating,Dashboard,ProfileManagement,BabyManagement,GrowthTracking,ReminderManagement,GuidanceBrowse,PartnerSharing,LogoutConfirm,NotificationReady stateNode;
+  class LoggedOut,Authenticating,Dashboard,EditingBaby,RecordingGrowth,ManagingReminders,ViewingGuidance,NotificationReady stateNode;
 ```
 
 ## 4. Class Diagram
