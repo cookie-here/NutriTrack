@@ -70,7 +70,53 @@ flowchart TB
   class Static,Feeds,Foods,Vaccines content;
 ```
 
-## 2. Use Case Diagram
+## 2. Simple Use Case Diagram
+
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Inter, Segoe UI, Arial, sans-serif",
+    "primaryColor": "#E8F5F1",
+    "primaryTextColor": "#14322E",
+    "primaryBorderColor": "#3A7D6D",
+    "lineColor": "#6B7D78",
+    "secondaryColor": "#FFF4D6",
+    "tertiaryColor": "#F7FAF9",
+    "background": "transparent",
+    "clusterBkg": "#F5FBF9",
+    "clusterBorder": "#B8D6CF"
+  }
+}}%%
+flowchart LR
+  Parent([Parent / Guardian])
+
+  subgraph System[NutriTrack System]
+    direction TB
+    UC1([Register / Sign in])
+    UC2([Manage baby profile])
+    UC3([Track growth])
+    UC4([View guidance])
+    UC5([Set reminders])
+  end
+
+  Partner([Partner])
+
+  Parent --> UC1
+  Parent --> UC2
+  Parent --> UC3
+  Parent --> UC4
+  Parent --> UC5
+  Partner --> UC1
+
+  classDef actor fill:#FFF4D6,stroke:#B08A1F,color:#4A3700,stroke-width:1.6px;
+  classDef usecase fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px;
+
+  class Parent,Partner actor;
+  class UC1,UC2,UC3,UC4,UC5 usecase;
+```
+
+## 3. Simple State Chart Diagram
 
 ```mermaid
 %%{init: {
@@ -84,46 +130,39 @@ flowchart TB
     "secondaryColor": "#FFF4D6",
     "tertiaryColor": "#F7FAF9",
     "background": "transparent"
-  }
+  },
+  "state": { "nodeSpacing": 48, "rankSpacing": 64 }
 }}%%
-flowchart LR
-  Parent((Parent / Guardian))
-  Partner((Partner))
+stateDiagram-v2
+  direction LR
+  [*] --> LoggedOut
 
-  subgraph System[NutriTrack System]
-    UC1([Register / Sign in])
-    UC2([Manage profile])
-    UC3([Add and update baby details])
-    UC4([Track growth records])
-    UC5([Create and complete reminders])
-    UC6([Review vaccine schedule])
-    UC7([Browse feeding guidance])
-    UC8([Browse safe food guidance])
-    UC9([Save emergency contact])
-    UC10([Send partner invitation])
-    UC11([Accept / decline partner invitation])
-  end
+  LoggedOut --> Dashboard: sign in
+  Dashboard --> LoggedOut: sign out
 
-  Parent --> UC1
-  Parent --> UC2
-  Parent --> UC3
-  Parent --> UC4
-  Parent --> UC5
-  Parent --> UC6
-  Parent --> UC7
-  Parent --> UC8
-  Parent --> UC9
-  Parent --> UC10
-  Partner --> UC11
+  state "Baby Profile" as BabyProfile
+  state "Growth Record" as GrowthRecord
+  state "Reminders" as Reminders
+  state "Guidance" as Guidance
 
-  classDef actor fill:#FFF4D6,stroke:#B08A1F,color:#4A3700,stroke-width:1.5px;
-  classDef usecase fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px;
+  Dashboard --> BabyProfile: update baby
+  Dashboard --> GrowthRecord: add record
+  Dashboard --> Reminders: manage reminder
+  Dashboard --> Guidance: view info
 
-  class Parent,Partner actor;
-  class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11 usecase;
+  BabyProfile --> Dashboard: save
+  GrowthRecord --> Dashboard: save
+  Reminders --> Dashboard: save
+  Guidance --> Dashboard: close
+
+  classDef stateNode fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px,rx:8,ry:8;
+  classDef dashboardNode fill:#E8F5F1,stroke:#2F6F60,color:#14322E,stroke-width:1.5px,rx:10,ry:10;
+
+  class LoggedOut,BabyProfile,GrowthRecord,Reminders,Guidance stateNode;
+  class Dashboard dashboardNode;
 ```
 
-## 3. Class Diagram
+## 4. Class Diagram
 
 ```mermaid
 classDiagram
@@ -246,7 +285,7 @@ note for Food "Reference content only; no database association"
 note for Vaccine "Reference content only; no database association"
 ```
 
-## 4. Context Diagram
+## 5. Context Diagram
 
 ```mermaid
 %%{init: {
@@ -281,7 +320,7 @@ flowchart LR
   class System system;
 ```
 
-## 5. Level 0 DFD
+## 6. Level 0 DFD
 
 ```mermaid
 %%{init: {
@@ -346,7 +385,7 @@ flowchart LR
   class D1,D2,D3,D4,D5,D6,D7,D8,D9 store;
 ```
 
-## 6. Level 1 DFD
+## 7. Level 1 DFD
 
 ```mermaid
 %%{init: {
@@ -447,7 +486,7 @@ flowchart LR
   class A,B,C,D group;
 ```
 
-## 7. Sequence Diagram
+## 8. Sequence Diagram
 
 ```mermaid
 sequenceDiagram
@@ -478,4 +517,4 @@ sequenceDiagram
 
 - The backend can run on SQLite in local development or MySQL in production-like deployments.
 - The diagrams emphasize the project’s actual domain objects and API flows rather than generic placeholders.
-- Mermaid rendering will look best in a Markdown viewer that supports the class, flowchart, and sequence diagram syntax used above.
+- Mermaid rendering will look best in a Markdown viewer that supports the class, flowchart, state, and sequence diagram syntax used above.
