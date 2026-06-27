@@ -131,9 +131,10 @@ flowchart LR
     "tertiaryColor": "#F7FAF9",
     "background": "transparent"
   },
-  "state": { "nodeSpacing": 20, "rankSpacing": 20 }
+  "state": { "nodeSpacing": 48, "rankSpacing": 64 }
 }}%%
 stateDiagram-v2
+  direction LR
   [*] --> LoggedOut
 
   LoggedOut --> Dashboard: sign in
@@ -154,9 +155,11 @@ stateDiagram-v2
   Reminders --> Dashboard: save
   Guidance --> Dashboard: close
 
-  classDef stateNode fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px;
+  classDef stateNode fill:#F5FBF9,stroke:#3A7D6D,color:#183B35,stroke-width:1.2px,rx:8,ry:8;
+  classDef dashboardNode fill:#E8F5F1,stroke:#2F6F60,color:#14322E,stroke-width:1.5px,rx:10,ry:10;
 
-  class LoggedOut,Dashboard,BabyProfile,GrowthRecord,Reminders,Guidance stateNode;
+  class LoggedOut,BabyProfile,GrowthRecord,Reminders,Guidance stateNode;
+  class Dashboard dashboardNode;
 ```
 
 ## 4. Class Diagram
