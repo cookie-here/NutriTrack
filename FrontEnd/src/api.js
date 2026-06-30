@@ -419,6 +419,18 @@ export async function getNutrientGroups() {
   return request('/api/foods/nutrient-groups');
 }
 
+// ===== Profile Statistics =====
+export async function getProfileStatistics() {
+  return request('/api/profile/statistics');
+}
+
+export async function uploadProfileImage(formData) {
+  return request('/api/profile/image', {
+    method: 'POST',
+    body: formData,
+  });
+}
+
 // ===== Auth Token Management =====
 export function setAuthToken(token) {
   if (!token) return;
@@ -426,6 +438,43 @@ export function setAuthToken(token) {
   
   // Dispatch custom event to notify BabyContext to refetch babies for new user
   window.dispatchEvent(new Event('login'));
+}
+
+// ===== Baby Documents =====
+export async function uploadDocument(babyId, formData) {
+  return request('/api/documents/upload', {
+    method: 'POST',
+    body: formData,
+  });
+}
+
+export async function getDocuments(babyId, category) {
+  return request(`/api/documents/${babyId}/${category}`);
+}
+
+export async function deleteDocument(docId) {
+  return request(`/api/documents/${docId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getDocumentFileUrl(docId) {
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  return `${API_URL}/api/documents/file/${docId}`;
+}
+
+export async function getDocumentFileBlob(docId) {
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const token = getAuthToken();
+  const res = await fetch(`${API_URL}/api/documents/file/${docId}`, {
+    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error('Failed to fetch document file');
+  return res.blob();
+}
+
+export async function getDocumentCounts(babyId) {
+  return request(`/api/documents/counts/${babyId}`);
 }
 
 export function getAuthToken() {

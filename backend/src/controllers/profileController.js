@@ -1,4 +1,10 @@
-import { User, EmergencyContact, Partner } from '../models/index.js';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { User, Baby, BabyDocument, DevelopmentMilestone, EmergencyContact, Partner } from '../models/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Get user profile with related data
@@ -30,6 +36,8 @@ export const getUserProfile = async (req, res, next) => {
       id: user.id,
       email: user.email,
       full_name: user.full_name,
+      phone_number: user.phone_number || null,
+      profile_image: user.profile_image || null,
       due_date: user.due_date,
       user_type: user.user_type,
       baby_date_of_birth: user.baby_date_of_birth,
@@ -52,7 +60,7 @@ export const getUserProfile = async (req, res, next) => {
 export const updateUserProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { full_name, due_date, user_type, baby_date_of_birth } = req.body;
+    const { full_name, phone_number, email, due_date, user_type, baby_date_of_birth } = req.body;
 
     const user = await User.findOne({ where: { id: userId } });
 
@@ -60,18 +68,21 @@ export const updateUserProfile = async (req, res, next) => {
       return res.status(404).json({ detail: 'User not found' });
     }
 
-    await user.update({
-      full_name: full_name || user.full_name,
-      due_date: due_date || user.due_date,
-      user_type: user_type || user.user_type,
-      baby_date_of_birth: baby_date_of_birth || user.baby_date_of_birth,
-      updated_at: new Date(),
-    });
+    const updateData = { updated_at: new Date() };
+    if (full_name !== undefined) updateData.full_name = full_name;
+    if (phone_number !== undefined) updateData.phone_number = phone_number;
+    if (due_date !== undefined) updateData.due_date = due_date;
+    if (user_type !== undefined) updateData.user_type = user_type;
+    if (baby_date_of_birth !== undefined) updateData.baby_date_of_birth = baby_date_of_birth;
+
+    await user.update(updateData);
 
     return res.json({
       id: user.id,
       email: user.email,
       full_name: user.full_name,
+      phone_number: user.phone_number,
+      profile_image: user.profile_image,
       due_date: user.due_date,
       user_type: user.user_type,
       baby_date_of_birth: user.baby_date_of_birth,
@@ -221,6 +232,84 @@ export const sendPartnerInvite = async (req, res, next) => {
     return res.status(500).json({
       detail: 'Error sending partner invite',
     });
+  }
+};
+
+/**
+ * Upload profile image
+ */
+export const uploadProfileImage = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    if (!req.file) {
+      return res.status(400).json({ detail: 'No image file provided' });
+    }
+
+    const allowed = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowed.includes(req.file.mimetype)) {
+      return res.status(400).json({ detail: 'Only JPG, PNG, and WebP images are allowed' });
+    }
+
+    if (req.file.size > 5 * 1024 * 1024) {
+      return res.status(400).json({ detail: 'Image must be less than 5 MB' });
+    }
+
+    const uploadDir = path.resolve(__dirname, '../../uploads/profiles');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    const storedName = `profile_${userId}_${Date.now()}${ext}`;
+    const filePath = path.join(uploadDir, storedName);
+    const relativePath = path.join('uploads/profiles', storedName);
+
+    fs.writeFileSync(filePath, req.file.buffer);
+
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ detail: 'User not found' });
+    }
+
+    await user.update({ profile_image: relativePath, updated_at: new Date() });
+
+    return res.json({ profile_image: relativePath });
+  } catch (error) {
+    console.error('Error uploading profile image:', error);
+    return res.status(500).json({ detail: 'Error uploading profile image' });
+  }
+};
+
+/**
+ * Get profile statistics
+ */
+export const getProfileStatistics = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const babies = await Baby.findAll({ where: { user_id: userId } });
+    const babyIds = babies.map(b => b.id);
+
+    let totalDocuments = 0;
+    let totalVaccinations = 0;
+    let totalGrowthEntries = 0;
+
+    if (babyIds.length > 0) {
+      totalDocuments = await BabyDocument.count({ where: { baby_id: babyIds } });
+      totalGrowthEntries = await DevelopmentMilestone.count({ where: { baby_id: babyIds } });
+      totalVaccinations = await DevelopmentMilestone.count({ where: { baby_id: babyIds, completed: true } });
+    }
+
+    return res.json({
+      registered_babies: babies.length,
+      medical_documents: totalDocuments,
+      vaccinations_completed: totalVaccinations,
+      growth_entries: totalGrowthEntries,
+    });
+  } catch (error) {
+    console.error('Error fetching profile statistics:', error);
+    return res.status(500).json({ detail: 'Error fetching statistics' });
   }
 };
 

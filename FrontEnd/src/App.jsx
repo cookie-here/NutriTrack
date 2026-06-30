@@ -34,6 +34,10 @@ import Nutrition from './pages/Nutrition'
 import Vaccines from './pages/Vaccines'
 import Feeding from './pages/Feeding'
 import Growth from './pages/Growth'
+import DischargeSummary from './pages/documents/DischargeSummary'
+import ImmunizationCard from './pages/documents/ImmunizationCard'
+import BirthRegistration from './pages/documents/BirthRegistration'
+import MedicalRecords from './pages/documents/MedicalRecords'
 import Profile from './pages/Profile'
 import StageSelect from './pages/StageSelect'
 import PregnantHome from './pages/PregnantHome'
@@ -81,6 +85,10 @@ function App() {
               <Route path="/pregnant/vaccines" element={<PregnantVaccines />} />
               <Route path="/feeding" element={<Feeding />} />
               <Route path="/growth" element={<Growth />} />
+              <Route path="/documents/discharge-summary" element={<DischargeSummary />} />
+              <Route path="/documents/immunization-card" element={<ImmunizationCard />} />
+              <Route path="/documents/birth-registration" element={<BirthRegistration />} />
+              <Route path="/documents/medical-records" element={<MedicalRecords />} />
               <Route path="/profile" element={<Profile />} />
             </Route>
 

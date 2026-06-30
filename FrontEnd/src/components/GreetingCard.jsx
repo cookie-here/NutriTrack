@@ -19,7 +19,8 @@ export default function GreetingCard({
   trimester = "Trimester 2",
   dueDate = "",
   weeksPregnant = null,
-  userType = 'pregnant'
+  userType = 'pregnant',
+  onNotificationClick
 }) {
   const navigate = useNavigate();
 
@@ -33,9 +34,14 @@ export default function GreetingCard({
         <div className="greeting-text">
           <h1>Hello, <br /> <strong>{userName || 'Guest'}</strong></h1>
         </div>
-        <button className="profile-button" onClick={() => navigate('/profile')} title="Go to Profile">
-          <span>👤</span>
-        </button>
+        <div className="greeting-actions">
+          <button className="notification-button" onClick={onNotificationClick} title="Notifications">
+            <span>🔔</span>
+          </button>
+          <button className="profile-button" onClick={() => navigate('/profile')} title="Go to Profile">
+            <span>👤</span>
+          </button>
+        </div>
       </div>
       
       {/* Show trimester info only for pregnant users */}

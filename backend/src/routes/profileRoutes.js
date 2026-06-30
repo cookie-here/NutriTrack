@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 import {
   getUserProfile,
   updateUserProfile,
@@ -9,10 +10,24 @@ import {
   getPartnerInvitations,
   acceptPartnerInvitation,
   declinePartnerInvitation,
+  uploadProfileImage,
+  getProfileStatistics,
 } from '../controllers/profileController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPG, PNG, and WebP images are allowed'), false);
+    }
+  },
+});
 
 /**
  * GET /profile
@@ -67,5 +82,17 @@ router.patch('/partner-invitations/:invitationId/accept', authenticateToken, acc
  * Decline partner invitation
  */
 router.patch('/partner-invitations/:invitationId/decline', authenticateToken, declinePartnerInvitation);
+
+/**
+ * POST /profile/image
+ * Upload profile image
+ */
+router.post('/image', authenticateToken, upload.single('image'), uploadProfileImage);
+
+/**
+ * GET /profile/statistics
+ * Get profile statistics
+ */
+router.get('/statistics', authenticateToken, getProfileStatistics);
 
 export default router;

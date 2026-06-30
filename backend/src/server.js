@@ -18,6 +18,7 @@ import profileRoutes from './routes/profileRoutes.js';
 import feedingRoutes from './routes/feedingRoutes.js';
 import foodRoutes from './routes/foodRoutes.js';
 import milestoneRoutes from './routes/milestoneRoutes.js';
+import documentRoutes from './routes/documentRoutes.js';
 import os from 'os';
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/feedings', feedingRoutes);
 app.use('/api/foods', foodRoutes);
 app.use('/api/milestones', milestoneRoutes);
+app.use('/api/documents', documentRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

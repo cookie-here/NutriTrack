@@ -1,378 +1,358 @@
-/**
- * PROFILE PAGE COMPONENT
- * ======================
- * Edit Profile page for NutriTrack app
- * Displays user avatar, profile info, and settings
- * Features: Sync Partner, Emergency Contacts, Legal Notice
- */
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNavigation from '../components/BottomNavigation';
-import { 
+import {
   getUserProfile,
+  updateUserProfile,
+  uploadProfileImage,
   saveEmergencyContact,
-  sendPartnerInvite,
-  clearAuthToken
+  getEmergencyContact,
+  deleteEmergencyContact,
+  clearAuthToken,
 } from '../api';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
 import '../styles/Profile.css';
 
+const HOME_USER_TYPE = 'newParent';
+
+function MenuItem({ icon, title, desc, onClick, right }) {
+  return (
+    <div className="pf-menu-item" onClick={onClick} role="button" tabIndex={0}
+      onKeyDown={e => { if (e.key === 'Enter') onClick?.() }}>
+      <span className="pf-menu-icon">{icon}</span>
+      <div className="pf-menu-text">
+        <span className="pf-menu-title">{title}</span>
+        {desc && <span className="pf-menu-desc">{desc}</span>}
+      </div>
+      {right !== undefined ? right : <span className="pf-chevron">›</span>}
+    </div>
+  );
+}
+
+function Modal({ show, onClose, title, children }) {
+  if (!show) return null;
+  return (
+    <div className="pf-overlay" onClick={onClose}>
+      <div className="pf-modal" onClick={e => e.stopPropagation()}>
+        <div className="pf-modal-header">
+          <h3>{title}</h3>
+          <button className="pf-modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="pf-modal-body">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function ConfirmDialog({ show, title, message, onConfirm, onCancel, confirmText = 'Confirm', danger = false }) {
+  if (!show) return null;
+  return (
+    <div className="pf-overlay" onClick={onCancel}>
+      <div className="pf-confirm" onClick={e => e.stopPropagation()}>
+        <h3>{title}</h3>
+        <p>{message}</p>
+        <div className="pf-confirm-actions">
+          <button className="pf-btn pf-btn-secondary" onClick={onCancel}>Cancel</button>
+          <button className={`pf-btn ${danger ? 'pf-btn-danger' : 'pf-btn-primary'}`} onClick={onConfirm}>{confirmText}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Profile() {
   const navigate = useNavigate();
-  
-  // State for settings
-  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
-  const [showLegalModal, setShowLegalModal] = useState(false);
-  const [showPartnerModal, setShowPartnerModal] = useState(false);
   const { addToast } = useToast();
   const { darkMode, toggleDarkMode } = useTheme();
-  
-  // User data - fetch from API
-  const [userData, setUserData] = useState({
-    name: "User",
-    email: "user@email.com",
-    profileImage: null
+  const fileInputRef = useRef(null);
+
+  const [userData, setUserData] = useState({ full_name: '', email: '', phone_number: '', profile_image: null });
+  const [emergencyContact, setEmergencyContact] = useState({ name: '', phone: '', relationship: '' });
+  const [uploading, setUploading] = useState(false);
+
+  const [modals, setModals] = useState({
+    editProfile: false, changePassword: false, changeEmail: false,
+    notifications: false, emergency: false,
+    privacy: false, terms: false,
   });
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const [editForm, setEditForm] = useState({ full_name: '', phone_number: '' });
+  const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
+  const [emailForm, setEmailForm] = useState({ email: '' });
 
-  // Emergency contact data
-  const [emergencyContact, setEmergencyContact] = useState({
-    name: "",
-    phone: "",
-    relationship: ""
-  });
+  const toggleModal = (key) => setModals(prev => ({ ...prev, [key]: !prev[key] }));
 
-  // Partner sync data
-  const [partnerEmail, setPartnerEmail] = useState("");
-
-  // Fetch user data on mount
   useEffect(() => {
-    const fetchUserData = async () => {
+    const load = async () => {
       try {
-        const user = await getUserProfile();
-        setUserData({
-          name: user.full_name || "User",
-          email: user.email || "user@email.com",
-          profileImage: null
-        });
-        
-        // Load emergency contact if exists
-        if (user.emergency_contact) {
-          setEmergencyContact(user.emergency_contact);
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+        const user = await getUserProfile().catch(() => ({ full_name: 'User', email: 'user@email.com' }));
+        setUserData(user);
+        if (user.emergency_contact) setEmergencyContact(user.emergency_contact);
+
+        const ec = await getEmergencyContact().catch(() => null);
+        if (ec) setEmergencyContact(ec);
+      } catch (e) {
+        console.error(e);
       }
     };
-
-    fetchUserData();
+    load();
   }, []);
 
-  // Handle profile image change
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUserData(prev => ({ ...prev, profileImage: reader.result }));
-      };
-      reader.readAsDataURL(file);
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('image', file);
+      const result = await uploadProfileImage(fd);
+      setUserData(prev => ({ ...prev, profile_image: result.profile_image }));
+      addToast('Profile picture updated', 'success');
+    } catch (err) {
+      addToast(err.message || 'Upload failed', 'error');
+    } finally {
+      setUploading(false);
     }
   };
 
-  // Handle emergency contact save
-  const handleEmergencyContactSave = async () => {
+  const handleEditProfile = async () => {
+    try {
+      const updated = await updateUserProfile(editForm);
+      setUserData(prev => ({ ...prev, full_name: updated.full_name, phone_number: updated.phone_number }));
+      toggleModal('editProfile');
+      addToast('Profile updated', 'success');
+    } catch (err) {
+      addToast(err.message || 'Update failed', 'error');
+    }
+  };
+
+  const handleEmergencySave = async () => {
     try {
       await saveEmergencyContact(emergencyContact);
-      setShowEmergencyModal(false);
-      addToast('Emergency contact saved successfully!', 'success');
-    } catch (error) {
-      console.error('Error saving emergency contact:', error);
-      addToast('Failed to save emergency contact', 'error');
+      toggleModal('emergency');
+      addToast('Emergency contact saved', 'success');
+    } catch (err) {
+      addToast(err.message || 'Save failed', 'error');
     }
   };
 
-  // Handle partner sync
-  const handlePartnerSync = async () => {
+  const handleEmergencyDelete = async () => {
     try {
-      await sendPartnerInvite(partnerEmail);
-      setShowPartnerModal(false);
-      setPartnerEmail("");
-      addToast('Partner invite sent successfully!', 'success');
-    } catch (error) {
-      console.error('Error sending partner invite:', error);
-      addToast('Failed to send partner invite', 'error');
+      await deleteEmergencyContact();
+      setEmergencyContact({ name: '', phone: '', relationship: '' });
+      toggleModal('emergency');
+      addToast('Emergency contact deleted', 'success');
+    } catch (err) {
+      addToast(err.message || 'Delete failed', 'error');
     }
   };
+
+  const handleLogout = () => {
+    clearAuthToken();
+    navigate('/login');
+  };
+
+  const profileImageUrl = userData.profile_image
+    ? `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/${userData.profile_image}`
+    : null;
 
   return (
-    <div className="profile-container">
-      <div className="profile-content">
-        
-        {/* Header */}
-        <div className="profile-header">
-          <button className="profile-back-button" onClick={() => navigate('/home')}>
-            <span>‹</span>
-          </button>
-          <h1 className="profile-title">Profile</h1>
-          <div className="profile-header-spacer"></div>
+    <div className="pf-container">
+      <div className="pf-content">
+
+        {/* ===== HEADER ===== */}
+        <div className="pf-header">
+          <button className="pf-back" onClick={() => navigate('/home')}>←</button>
+          <h1 className="pf-page-title">Profile</h1>
         </div>
 
-        {/* Profile Picture Section */}
-        <div className="profile-picture-section">
-          <div className="profile-avatar-container">
-            <div className="profile-avatar-large">
-              {userData.profileImage ? (
-                <img src={userData.profileImage} alt="Profile" />
+        {/* ===== PROFILE CARD ===== */}
+        <div className="pf-profile-card">
+          <div className="pf-avatar-wrap">
+            <div className="pf-avatar" onClick={() => fileInputRef.current?.click()}>
+              {profileImageUrl ? (
+                <img src={profileImageUrl} alt="Profile" />
               ) : (
-                <span className="avatar-placeholder">👤</span>
+                <span className="pf-avatar-placeholder">👤</span>
               )}
+              <div className="pf-avatar-overlay">
+                <span>{uploading ? '...' : '📷'}</span>
+              </div>
             </div>
-            <label className="camera-button" htmlFor="profile-image-input">
-              <span>📷</span>
-            </label>
-            <input
-              type="file"
-              id="profile-image-input"
-              accept="image/*"
-              onChange={handleImageChange}
-              style={{ display: 'none' }}
-            />
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} hidden />
           </div>
-          <h2 className="profile-name">{userData.name}</h2>
-          <p className="profile-email">{userData.email}</p>
+          <h2 className="pf-name">{userData.full_name || 'User'}</h2>
+          <p className="pf-email">{userData.email}</p>
+
+          <button className="pf-edit-profile-btn" onClick={() => { setEditForm({ full_name: userData.full_name, phone_number: userData.phone_number || '' }); toggleModal('editProfile'); }}>
+            <span>✏️</span> Edit Profile
+          </button>
         </div>
 
-        {/* Settings Section */}
-        <div className="settings-section">
-          <h3 className="section-title">Settings</h3>
-          
-          
-          {/* Dark Mode Toggle */}
-          <div 
-            className="settings-item" 
-            onClick={toggleDarkMode}
-            role="switch"
-            aria-checked={darkMode}
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDarkMode(); } }}
-          >
-            <div className="settings-item-left">
-              <span className="settings-icon">{darkMode ? '🌙' : '☀️'}</span>
-              <div className="settings-info">
-                <p className="settings-label">Dark Mode</p>
-                <p className="settings-description">Toggle application theme</p>
-              </div>
-            </div>
-            <div className="toggle-switch">
-              <input type="checkbox" checked={darkMode} readOnly />
-              <span className="toggle-slider"></span>
-            </div>
-          </div>
-
-          {/* Sync Partner */}
-          <div 
-            className="settings-item" 
-            onClick={() => setShowPartnerModal(true)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setShowPartnerModal(true); }}
-          >
-            <div className="settings-item-left">
-              <span className="settings-icon">👥</span>
-              <div className="settings-info">
-                <p className="settings-label">Sync Partner</p>
-                <p className="settings-description">Share updates with your partner</p>
-              </div>
-            </div>
-            <span className="chevron">›</span>
-          </div>
-
-          {/* Emergency Contact */}
-          <div 
-            className="settings-item" 
-            onClick={() => setShowEmergencyModal(true)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setShowEmergencyModal(true); }}
-          >
-            <div className="settings-item-left">
-              <span className="settings-icon">🚨</span>
-              <div className="settings-info">
-                <p className="settings-label">Emergency Contact</p>
-                <p className="settings-description">Add emergency contact details</p>
-              </div>
-            </div>
-            <span className="chevron">›</span>
-          </div>
-
-          {/* Legal Notice */}
-          <div 
-            className="settings-item" 
-            onClick={() => setShowLegalModal(true)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setShowLegalModal(true); }}
-          >
-            <div className="settings-item-left">
-              <span className="settings-icon">📜</span>
-              <div className="settings-info">
-                <p className="settings-label">Legal Notice</p>
-                <p className="settings-description">Terms, privacy & policies</p>
-              </div>
-            </div>
-            <span className="chevron">›</span>
+        {/* ===== ACCOUNT ===== */}
+        <div className="pf-section">
+          <h3 className="pf-section-title">ACCOUNT</h3>
+          <div className="pf-card">
+            <MenuItem icon="👤" title="Edit Profile" desc="Update your personal information" onClick={() => { setEditForm({ full_name: userData.full_name, phone_number: userData.phone_number || '' }); toggleModal('editProfile'); }} />
+            <MenuItem icon="🔑" title="Change Password" desc="Update your password" onClick={() => toggleModal('changePassword')} />
+            <MenuItem icon="📧" title="Change Email" desc="Update your email address" onClick={() => toggleModal('changeEmail')} />
           </div>
         </div>
 
-        {/* Logout Button */}
-        <button className="logout-button" onClick={() => {
-          clearAuthToken();
-          navigate('/login');
-        }}>
-          <span className="logout-icon">🚪</span>
-          <span>Log Out</span>
+        {/* ===== SETTINGS ===== */}
+        <div className="pf-section">
+          <h3 className="pf-section-title">SETTINGS</h3>
+          <div className="pf-card">
+            <MenuItem icon={darkMode ? '🌙' : '☀️'} title="Dark Mode" desc="Toggle application theme"
+              right={
+                <div className="pf-toggle" onClick={e => { e.stopPropagation(); toggleDarkMode(); }} role="switch" aria-checked={darkMode} tabIndex={0}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.stopPropagation(); toggleDarkMode(); } }}>
+                  <div className={`pf-toggle-track ${darkMode ? 'on' : ''}`}>
+                    <div className="pf-toggle-thumb" />
+                  </div>
+                </div>
+              } />
+            <MenuItem icon="🔔" title="Notifications" desc="Manage notification preferences" onClick={() => toggleModal('notifications')} />
+            <MenuItem icon="🚨" title="Emergency Contact" desc={emergencyContact.name || 'Add emergency contact'} onClick={() => toggleModal('emergency')} />
+          </div>
+        </div>
+
+        {/* ===== ABOUT ===== */}
+        <div className="pf-section">
+          <h3 className="pf-section-title">ABOUT</h3>
+          <div className="pf-card">
+            <MenuItem icon="📜" title="Privacy Policy" desc="How we handle your data" onClick={() => toggleModal('privacy')} />
+            <MenuItem icon="📄" title="Terms & Conditions" desc="Terms of service" onClick={() => toggleModal('terms')} />
+            <MenuItem icon="⭐" title="Rate App" desc="Leave a review" onClick={() => addToast('Thanks for your support!', 'info')} />
+            <MenuItem icon="📤" title="Share App" desc="Share NutriTrack with others" onClick={() => {
+              if (navigator.share) navigator.share({ title: 'NutriTrack', text: 'Track your baby\'s health with NutriTrack!' }).catch(() => {});
+              else addToast('Share not supported on this device', 'info');
+            }} />
+            <MenuItem icon="ℹ" title="Version" desc="NutriTrack v1.0.0" onClick={() => {}} right={null} />
+          </div>
+        </div>
+
+        {/* ===== LOGOUT ===== */}
+        <button className="pf-logout" onClick={() => setConfirmLogout(true)}>
+          🚪 Log Out
         </button>
 
-        {/* App Version */}
-        <p className="app-version">NutriTrack v1.0.0</p>
-
+        <p className="pf-footer-text">NutriTrack v1.0.0</p>
       </div>
 
-      {/* Partner Sync Modal */}
-      {showPartnerModal && (
-        <div className="modal-overlay" onClick={() => setShowPartnerModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Sync Partner</h3>
-              <button className="modal-close" onClick={() => setShowPartnerModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <p className="modal-description">
-                Invite your partner to sync and share pregnancy updates, reminders, and milestones together.
-              </p>
-              <div className="form-group">
-                <label className="form-label">Partner's Email</label>
-                <input
-                  type="email"
-                  className="form-input"
-                  placeholder="partner@email.com"
-                  value={partnerEmail}
-                  onChange={(e) => setPartnerEmail(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="modal-button secondary" onClick={() => setShowPartnerModal(false)}>
-                Cancel
-              </button>
-              <button className="modal-button primary" onClick={handlePartnerSync}>
-                Send Invite
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Emergency Contact Modal */}
-      {showEmergencyModal && (
-        <div className="modal-overlay" onClick={() => setShowEmergencyModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Emergency Contact</h3>
-              <button className="modal-close" onClick={() => setShowEmergencyModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <p className="modal-description">
-                Add an emergency contact who can be reached quickly in case of any emergency.
-              </p>
-              <div className="form-group">
-                <label className="form-label">Contact Name</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="John Doe"
-                  value={emergencyContact.name}
-                  onChange={(e) => setEmergencyContact(prev => ({ ...prev, name: e.target.value }))}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Phone Number</label>
-                <input
-                  type="tel"
-                  className="form-input"
-                  placeholder="+1 (555) 000-0000"
-                  value={emergencyContact.phone}
-                  onChange={(e) => setEmergencyContact(prev => ({ ...prev, phone: e.target.value }))}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Relationship</label>
-                <select
-                  className="form-input"
-                  value={emergencyContact.relationship}
-                  onChange={(e) => setEmergencyContact(prev => ({ ...prev, relationship: e.target.value }))}
-                >
-                  <option value="">Select relationship</option>
-                  <option value="spouse">Spouse</option>
-                  <option value="parent">Parent</option>
-                  <option value="sibling">Sibling</option>
-                  <option value="friend">Friend</option>
-                  <option value="doctor">Doctor</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="modal-button secondary" onClick={() => setShowEmergencyModal(false)}>
-                Cancel
-              </button>
-              <button className="modal-button primary" onClick={handleEmergencyContactSave}>
-                Save Contact
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Legal Notice Modal */}
-      {showLegalModal && (
-        <div className="modal-overlay" onClick={() => setShowLegalModal(false)}>
-          <div className="modal-content legal-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Legal Notice</h3>
-              <button className="modal-close" onClick={() => setShowLegalModal(false)}>×</button>
-            </div>
-            <div className="modal-body legal-body">
-              <div className="legal-section">
-                <h4>Terms of Service</h4>
-                <p>By using NutriTrack, you agree to our terms and conditions. This app provides nutritional guidance and pregnancy tracking information for educational purposes only.</p>
-              </div>
-              <div className="legal-section">
-                <h4>Privacy Policy</h4>
-                <p>We respect your privacy. Your personal data is encrypted and stored securely. We do not share your information with third parties without your consent.</p>
-              </div>
-              <div className="legal-section">
-                <h4>Medical Disclaimer</h4>
-                <p>NutriTrack is not a substitute for professional medical advice. Always consult with your healthcare provider for medical decisions.</p>
-              </div>
-              <div className="legal-section">
-                <h4>Data Collection</h4>
-                <p>We collect minimal data necessary to provide our services, including profile information, health tracking data, and app usage analytics.</p>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="modal-button primary" onClick={() => setShowLegalModal(false)}>
-                I Understand
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Bottom Navigation */}
       <BottomNavigation activeTab="Profile" />
+
+      {/* ===== MODALS ===== */}
+
+      {/* Edit Profile */}
+      <Modal show={modals.editProfile} onClose={() => toggleModal('editProfile')} title="Edit Profile">
+        <label className="pf-field-label">Full Name</label>
+        <input className="pf-input" value={editForm.full_name} onChange={e => setEditForm(p => ({ ...p, full_name: e.target.value }))} />
+        <label className="pf-field-label">Phone Number</label>
+        <input className="pf-input" value={editForm.phone_number} onChange={e => setEditForm(p => ({ ...p, phone_number: e.target.value }))} placeholder="+977 98XXXXXXXX" />
+        <button className="pf-btn pf-btn-primary pf-btn-full" onClick={handleEditProfile}>Save Changes</button>
+      </Modal>
+
+      {/* Change Password */}
+      <Modal show={modals.changePassword} onClose={() => toggleModal('changePassword')} title="Change Password">
+        <label className="pf-field-label">Current Password</label>
+        <input className="pf-input" type="password" value={passwordForm.current} onChange={e => setPasswordForm(p => ({ ...p, current: e.target.value }))} />
+        <label className="pf-field-label">New Password</label>
+        <input className="pf-input" type="password" value={passwordForm.newPass} onChange={e => setPasswordForm(p => ({ ...p, newPass: e.target.value }))} />
+        <label className="pf-field-label">Confirm New Password</label>
+        <input className="pf-input" type="password" value={passwordForm.confirm} onChange={e => setPasswordForm(p => ({ ...p, confirm: e.target.value }))} />
+        <button className="pf-btn pf-btn-primary pf-btn-full" onClick={() => { addToast('Password change coming soon', 'info'); toggleModal('changePassword'); }}>Update Password</button>
+      </Modal>
+
+      {/* Change Email */}
+      <Modal show={modals.changeEmail} onClose={() => toggleModal('changeEmail')} title="Change Email">
+        <label className="pf-field-label">New Email Address</label>
+        <input className="pf-input" type="email" value={emailForm.email} onChange={e => setEmailForm({ email: e.target.value })} placeholder="new@email.com" />
+        <button className="pf-btn pf-btn-primary pf-btn-full" onClick={() => { addToast('Email change coming soon', 'info'); toggleModal('changeEmail'); }}>Update Email</button>
+      </Modal>
+
+      {/* Notifications */}
+      <Modal show={modals.notifications} onClose={() => toggleModal('notifications')} title="Notifications">
+        {[
+          { key: 'vaccine', label: 'Vaccination reminders', icon: '💉' },
+          { key: 'growth', label: 'Growth reminders', icon: '📈' },
+          { key: 'appointment', label: 'Appointment reminders', icon: '📅' },
+          { key: 'nutrition', label: 'Nutrition reminders', icon: '🥗' },
+        ].map(item => (
+          <div key={item.key} className="pf-notif-row">
+            <span>{item.icon} {item.label}</span>
+            <div className="pf-toggle" role="switch" aria-checked={true} tabIndex={0}
+              onKeyDown={e => { if (e.key === 'Enter') addToast('Toggle coming soon', 'info'); }}>
+              <div className="pf-toggle-track on">
+                <div className="pf-toggle-thumb" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </Modal>
+
+      {/* Emergency Contact */}
+      <Modal show={modals.emergency} onClose={() => toggleModal('emergency')} title="Emergency Contact">
+        {emergencyContact.name && (
+          <div className="pf-existing-ec">
+            <p><strong>{emergencyContact.name}</strong> — {emergencyContact.phone}</p>
+            <p className="pf-ec-rel">{emergencyContact.relationship}</p>
+            <button className="pf-btn pf-btn-danger pf-btn-full" onClick={handleEmergencyDelete}>Delete Contact</button>
+          </div>
+        )}
+        <p className="pf-modal-desc">{emergencyContact.name ? 'Update your' : 'Add an'} emergency contact.</p>
+        <label className="pf-field-label">Contact Name</label>
+        <input className="pf-input" value={emergencyContact.name} onChange={e => setEmergencyContact(p => ({ ...p, name: e.target.value }))} placeholder="John Doe" />
+        <label className="pf-field-label">Phone Number</label>
+        <input className="pf-input" value={emergencyContact.phone} onChange={e => setEmergencyContact(p => ({ ...p, phone: e.target.value }))} placeholder="+977 98XXXXXXXX" />
+        <label className="pf-field-label">Relationship</label>
+        <select className="pf-input" value={emergencyContact.relationship} onChange={e => setEmergencyContact(p => ({ ...p, relationship: e.target.value }))}>
+          <option value="">Select relationship</option>
+          <option value="spouse">Spouse</option>
+          <option value="parent">Parent</option>
+          <option value="sibling">Sibling</option>
+          <option value="friend">Friend</option>
+          <option value="doctor">Doctor</option>
+          <option value="other">Other</option>
+        </select>
+        <button className="pf-btn pf-btn-primary pf-btn-full" onClick={handleEmergencySave}>Save Contact</button>
+      </Modal>
+
+      {/* Privacy Policy */}
+      <Modal show={modals.privacy} onClose={() => toggleModal('privacy')} title="Privacy Policy">
+        <div className="pf-legal-body">
+          <h4>Data Collection</h4>
+          <p>We collect minimal data necessary to provide our services, including profile information, health tracking data, and app usage analytics.</p>
+          <h4>Data Security</h4>
+          <p>Your personal data is encrypted and stored securely. We do not share your information with third parties without your consent.</p>
+          <h4>Your Rights</h4>
+          <p>You can request deletion of your data at any time by contacting our support team.</p>
+        </div>
+      </Modal>
+
+      {/* Terms & Conditions */}
+      <Modal show={modals.terms} onClose={() => toggleModal('terms')} title="Terms & Conditions">
+        <div className="pf-legal-body">
+          <h4>Terms of Service</h4>
+          <p>By using NutriTrack, you agree to our terms and conditions. This app provides nutritional guidance and health tracking for educational purposes only.</p>
+          <h4>Medical Disclaimer</h4>
+          <p>NutriTrack is not a substitute for professional medical advice. Always consult with your healthcare provider for medical decisions.</p>
+          <h4>Usage</h4>
+          <p>You are responsible for maintaining the confidentiality of your account and for all activities under your account.</p>
+        </div>
+      </Modal>
+
+      {/* Confirm Logout */}
+      <ConfirmDialog
+        show={confirmLogout}
+        title="Log Out"
+        message="Are you sure you want to log out?"
+        confirmText="Logout"
+        danger
+        onConfirm={handleLogout}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </div>
   );
 }

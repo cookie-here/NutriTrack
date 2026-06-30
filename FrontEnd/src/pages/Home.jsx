@@ -10,18 +10,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GreetingCard from '../components/GreetingCard';
 import BabyProfileCard from '../components/BabyProfileCard';
-import ReminderCard from '../components/ReminderCard';
-import NotificationCard from '../components/NotificationCard';
-import NotificationBanner from '../components/NotificationBanner';
 import LoadingSpinner from '../components/LoadingSpinner';
 import BottomNavigation from '../components/BottomNavigation';
-import NotificationService from '../services/NotificationService';
 import { useBabyContext } from '../context/BabyContext';
-import { getReminders, getCurrentUser, getAuthToken, getUserVaccineReminders } from '../api';
-import { isVaccineDueWithin } from '../utils/vaccineSchedule';
+import { getCurrentUser, getAuthToken, getReminders, getUserVaccineReminders } from '../api';
 import { calculateBabyAgeDetailed, getBabyAgeMonths } from '../utils/babyAge';
 import '../styles/Home.css';
-import '../styles/NotificationCard.css';
 
 const HOME_USER_TYPE = 'newParent';
 
@@ -30,10 +24,10 @@ export default function Home() {
   const { babies, selectedBaby, setSelectedBaby, refreshBabies } = useBabyContext();
   const storedUserType = localStorage.getItem('userType') || localStorage.getItem('selectedStage');
   
-  // State for notification permission
-  const [notificationPermission, setNotificationPermission] = useState(false);
-  const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [notifLoading, setNotifLoading] = useState(false);
   const [userData, setUserData] = useState({
     userName: "Loading...",
     trimester: "Baby Age",
@@ -45,53 +39,6 @@ export default function Home() {
     babyAgeWeeks: null,
     babyDob: null
   });
-
-  // Vaccine data placeholder; should be populated from backend schedule
-  const [vaccinesData, setVaccinesData] = useState([]);
-
-  const fetchRemindersData = async () => {
-    try {
-      const [remindersData, vaccineRemindersData] = await Promise.all([
-        getReminders().catch(() => []),
-        selectedBaby ? getUserVaccineReminders(selectedBaby.id).catch(() => []) : Promise.resolve([])
-      ]);
-      
-      const allRemindersList = [...remindersData, ...vaccineRemindersData];
-      const today = new Date();
-      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
-      const futureDate = new Date(today);
-      futureDate.setDate(today.getDate() + 14);
-      
-      const todayReminders = allRemindersList.filter(r => {
-        const reminderDate = new Date(r.reminder_date);
-        return reminderDate >= todayStart && reminderDate <= futureDate;
-      });
-      
-      const reminderMap = new Map();
-      todayReminders.forEach(r => {
-        const reminderDateTime = new Date(r.reminder_date).toLocaleDateString('en-US', {
-          month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
-        });
-        const key = `${r.title || r.vaccine_name}|${reminderDateTime}`;
-        if (!reminderMap.has(key)) reminderMap.set(key, r);
-      });
-      
-      const uniqueReminders = Array.from(reminderMap.values());
-      uniqueReminders.sort((a, b) => new Date(a.reminder_date) - new Date(b.reminder_date));
-      
-      setReminders(uniqueReminders.map(r => ({
-        id: r.id,
-        title: r.title || r.vaccine_name,
-        description: r.description || (r.dose_number ? `Dose ${r.dose_number} of ${r.total_doses}` : ''),
-        formattedDate: new Date(r.reminder_date).toLocaleDateString('en-US', {
-          month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
-        }),
-        icon: (r.type === 'vaccine' || r.vaccine_name) ? '💉' : '📅'
-      })));
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   useEffect(() => {
     let isMounted = true;
@@ -105,9 +52,6 @@ export default function Home() {
           }
           return;
         }
-
-        const hasPermission = await NotificationService.initialize();
-        if (isMounted) setNotificationPermission(hasPermission);
 
         const user = await getCurrentUser();
         const serverUserType = user.user_type || storedUserType;
@@ -142,32 +86,6 @@ export default function Home() {
           });
         }
 
-        const [remindersData, vaccineRemindersData] = await Promise.all([
-          getReminders().catch(() => []),
-          selectedBaby ? getUserVaccineReminders(selectedBaby.id).catch(() => []) : Promise.resolve([])
-        ]);
-        
-        if (isMounted) {
-          setVaccinesData(vaccineRemindersData || []);
-          const upcomingVaccines = (vaccineRemindersData || []).filter(vaccine => 
-            vaccine.status !== 'completed' && isVaccineDueWithin(vaccine.reminder_date, 7)
-          );
-          if (upcomingVaccines.length > 0 && hasPermission) {
-            setTimeout(() => {
-              upcomingVaccines.forEach(vaccine => {
-                NotificationService.sendNotification(
-                  `💉 ${vaccine.vaccine_name} - Dose ${vaccine.dose_number}`,
-                  {
-                    body: `Due on ${new Date(vaccine.reminder_date).toDateString()}`,
-                    tag: `vaccine-reminder-${vaccine.id}`,
-                  }
-                );
-              });
-            }, 1000);
-          }
-        }
-        
-        await fetchRemindersData();
         if (isMounted) setLoading(false);
       } catch (error) {
         console.error('Error in initializeAndFetchData:', error);
@@ -177,6 +95,31 @@ export default function Home() {
     initializeAndFetchData();
     return () => { isMounted = false; };
   }, [selectedBaby, navigate, storedUserType]); 
+
+  const fetchNotifications = async () => {
+    setNotifLoading(true);
+    try {
+      const [remindersData, vaccineReminders] = await Promise.all([
+        getReminders().catch(() => []),
+        selectedBaby ? getUserVaccineReminders(selectedBaby.id).catch(() => []) : Promise.resolve([]),
+      ]);
+      const all = [
+        ...vaccineReminders.map(v => ({ ...v, type: 'vaccine', icon: '💉' })),
+        ...remindersData.map(r => ({ ...r, type: 'reminder', icon: '📅' })),
+      ];
+      all.sort((a, b) => new Date(a.reminder_date) - new Date(b.reminder_date));
+      setNotifications(all);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setNotifLoading(false);
+    }
+  };
+
+  const handleOpenNotifications = () => {
+    setShowNotifications(true);
+    fetchNotifications();
+  };
 
   if (loading) {
     return (
@@ -190,11 +133,6 @@ export default function Home() {
     <div className="home-container">
       {/* Main Content */}
       <div className="home-content">
-        
-        {/* Notification Permission Banner */}
-        <NotificationBanner 
-          onPermissionChange={(granted) => setNotificationPermission(granted)}
-        />
 
         {/* Greeting Section */}
         <GreetingCard 
@@ -207,50 +145,79 @@ export default function Home() {
           babyAgeMonths={userData.babyAgeMonths}
           babyAgeWeeks={userData.babyAgeWeeks}
           babyDob={userData.babyDob}
+          onNotificationClick={handleOpenNotifications}
         />
 
-        {babies && babies.length > 1 && (
-          <div className="home-baby-selector">
-            <label htmlFor="home-baby-select">Select Baby</label>
-            <select
-              id="home-baby-select"
-              value={selectedBaby?.id || ''}
-              onChange={(event) => {
-                const selectedId = parseInt(event.target.value, 10);
-                const nextBaby = babies.find(b => b.id === selectedId);
-                if (nextBaby) {
-                  setSelectedBaby(nextBaby);
-                }
-              }}
-            >
-              {babies.map((baby) => (
-                <option key={baby.id} value={baby.id}>
-                  {baby.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Baby Profile Card - Shows age graph and DOB */}
+        {/* Baby Profile Card */}
         <BabyProfileCard
           babyAgeLabel={userData.babyAgeLabel}
-          babyAgeMonths={userData.babyAgeMonths}
           babyDob={userData.babyDob}
         />
 
-        {/* Vaccine Notifications - Shows alerts for vaccines due within 7 days */}
-        <NotificationCard 
-          vaccinesData={vaccinesData}
-          onDismiss={() => console.log('Notification dismissed')}
-        />
+        {/* Important Baby Documents */}
+        <div className="doc-section">
+          <div className="doc-section-header">
+            <h2>Important Baby Documents</h2>
+          </div>
+          <div className="doc-grid">
+            <div className="doc-card" onClick={() => navigate('/documents/discharge-summary')}>
+              <span className="doc-icon">🏥</span>
+              <span className="doc-card-title">Hospital<br/>Discharge Summary</span>
+            </div>
+            <div className="doc-card" onClick={() => navigate('/documents/immunization-card')}>
+              <span className="doc-icon">💉</span>
+              <span className="doc-card-title">Immunization<br/>Card (खोप कार्ड)</span>
+            </div>
+            <div className="doc-card" onClick={() => navigate('/documents/birth-registration')}>
+              <span className="doc-icon">📜</span>
+              <span className="doc-card-title">Birth<br/>Registration<br/>(जन्म दर्ता)</span>
+            </div>
+            <div className="doc-card" onClick={() => navigate('/documents/medical-records')}>
+              <span className="doc-icon">📁</span>
+              <span className="doc-card-title">Medical<br/>Records</span>
+            </div>
+          </div>
+        </div>
 
-        {/* Reminders Section */}
-        <ReminderCard 
-          reminders={reminders} 
-          onReminderDeleted={fetchRemindersData}
-        />
       </div>
+
+      {/* Notification Modal */}
+      {showNotifications && (
+        <div className="notif-overlay" onClick={() => setShowNotifications(false)}>
+          <div className="notif-panel" onClick={e => e.stopPropagation()}>
+            <div className="notif-panel-header">
+              <h2>🔔 Notifications</h2>
+              <button className="notif-close-btn" onClick={() => setShowNotifications(false)}>✕</button>
+            </div>
+            <div className="notif-panel-body">
+              {notifLoading ? (
+                <p className="notif-empty">Loading...</p>
+              ) : notifications.length === 0 ? (
+                <p className="notif-empty">No notifications yet.</p>
+              ) : (
+                notifications.map((n, i) => (
+                  <div key={n.id || i} className="notif-item">
+                    <span className="notif-icon">{n.icon}</span>
+                    <div className="notif-content">
+                      <p className="notif-title">{n.title || n.vaccine_name}</p>
+                      {n.description && <p className="notif-desc">{n.description}</p>}
+                      {(n.dose_number != null) && (
+                        <p className="notif-desc">Dose {n.dose_number}{n.total_doses ? ` of ${n.total_doses}` : ''}</p>
+                      )}
+                      <p className="notif-date">
+                        {new Date(n.reminder_date || n.date).toLocaleDateString('en-US', {
+                          month: 'short', day: 'numeric', year: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                    {n.status === 'completed' && <span className="notif-status">✅</span>}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Floating Add Baby Button */}
       <button 
