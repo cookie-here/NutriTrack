@@ -11,6 +11,7 @@ import GreetingCard from '../components/GreetingCard';
 import ReminderCard from '../components/ReminderCard';
 import NotificationBanner from '../components/NotificationBanner';
 import TipCard from '../components/TipCard';
+import PregnancyGuidePreview from '../components/PregnancyGuidePreview';
 import BottomNavigation from '../components/BottomNavigation';
 import NotificationService from '../services/NotificationService';
 import { getReminders, getDailyTip, getCurrentUser, getAuthToken } from '../api';
@@ -178,6 +179,8 @@ export default function PregnantHome() {
           title="Today's Pregnancy Tip"
           content={tipError ? `Tip unavailable: ${tipError}` : tip}
         />
+
+        <PregnancyGuidePreview />
       </div>
 
       {/* Bottom Navigation */}

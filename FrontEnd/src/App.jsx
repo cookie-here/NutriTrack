@@ -38,6 +38,7 @@ import Profile from './pages/Profile'
 import StageSelect from './pages/StageSelect'
 import PregnantHome from './pages/PregnantHome'
 import PregnantNutrition from './pages/PregnantNutrition'
+import PregnantHealthGuide from './pages/PregnantHealthGuide'
 import PregnantVaccines from './pages/PregnantVaccines'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -75,6 +76,7 @@ function App() {
               <Route path="/pregnant/home" element={<PregnantHome />} />
               <Route path="/nutrition" element={<Nutrition />} />
               <Route path="/pregnant/nutrition" element={<PregnantNutrition />} />
+              <Route path="/pregnant/health-guide" element={<PregnantHealthGuide />} />
               <Route path="/vaccines" element={<Vaccines />} />
               <Route path="/pregnant/vaccines" element={<PregnantVaccines />} />
               <Route path="/feeding" element={<Feeding />} />
